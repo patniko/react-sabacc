@@ -1,7 +1,7 @@
 {
-  "name": "react-solitaire",
+  "name": "react-sabacc",
   "version": "1.0.0",
-  "description": "Solitaire card game implemented in React",
+  "description": "Sabacc card game implemented in React",
   "main": "index.js",
   "scripts": {
     "start": "node devServer.js",
@@ -16,7 +16,7 @@
     "solitaire",
     "game"
   ],
-  "author": "Edoardo Colombo <edo.gcolombo@gmail.com>",
+  "author": "Patrick Nikoletich <pnikoletich@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "immutable": "^3.7.5",

@@ -1,66 +1,46 @@
-
-# Overview
+## Overview
 
 React implementation of Sabacc.
 
-# Rules
-* All players start with 1000 coins.
-
+### Deck
 The Sabacc deck is composed of 76 cards, in the following configuration:
 
-Four Suits (Sabers, Flasks, Coins, Staves)
+- Four Suits (Sabers, Flasks, Coins, Staves)
 - Values 1 - 11
+- Ranked Cards
+	- Commander (value 12)
+	- Mistress (value 13)
+	- Master (value 14)
+	- Ace (value 15)
 
-Ranked Cards
-- Commander (value 12)
-- Mistress (value 13)
-- Master (value 14)
-- Ace (value 15)
+- Two copies of eight Face Cards
+	- The Star (value -17)
+	- The Evil One (value -15)
+	- Moderation (value -14)
+	- Demise (value -13)
+	- Balance (value -11)
+	- Endurance (valu1e -8)
+	- Queen of Air and Darkness (value -2)
+	- Idiot (value 0)
 
-Two copies of eight Face Cards
-- The Star (value -17)
-- The Evil One (value -15)
-- Moderation (value -14)
-- Demise (value -13)
-- Balance (value -11)
-- Endurance (valu1e -8)
-- Queen of Air and Darkness (value -2)
-- Idiot (value 0)
+### Rules
+Sabacc's main objective is to win Credits. There are two pots: The main pot and the Sabacc pot. Each hand starts with each player placing an ante into both the Main Pot and the Sabacc Pot. Subsequent bets during the hand will be placed only into the Main Pot. Beginning with the player to the dealer's left, each player may elect to either bet or fold. Going clockwise from that player, each person must match the previous bet to stay in the hand. They may also raise the bet to a new amount. If a raise is made, all players must at least match the new bet amount to stay in the hand. When no one wishes to raise any more, the betting is over.
 
-1. Every game uses one deck containing 76 cards.
-  - 4 suits, each containing numbered cards 1 - 15.
-  - 2 copies of 8 special cards.
-2. The games consists of several sequential rounds, and ends when a player wins.
-3. There are two pots - the sabacc pot is utilized for game winnings, while the special pot can only be won with a trump score.
-4. To achieve a trump score you must have a pure sabacc of either +23 or -23
+The game can have between 2 and 8 players. Winning hands in Sabacc are hands that total 23 or -23, which are called Pure Sabacc, or a hand made up of an Idiot (value 0) a 2 of any suit and a 3 of any suit (this is a literal 023) called an Idiot's Array. An Idiot's Array beats a Pure Sabacc. If no one has any of these winning hands, the player with the highest hand total below 23 wins.
 
-# Round
-2. At the start of a round each player is dealt 2 to 5 cards depending on the settings.
-3. Starting to the left of the dealers, players may bet and continue to call.
+Once the initial betting is complete, each player is dealt two cards. Players then take turns drawing a card or standing. Afterwards another round of betting takes place. The first through fourth rounds of play and betting are usually considered the pot-building phase, and the game cannot be Called during this time.
 
-## Winning the game
-The sabacc pot is another pot to which players must ante each hand. This special pot can be won only by winning a hand with one of the three trump scores: a pure sabacc of either +23 or −23 (with the former trumping the latter) or an Idiot's Array. The Array is a special hand containing a card called The Idiot, worth zero, a Two of any suit, and a Three of the same suit. When laid out on the table, an Idiot's Array is read, literally, as 023, and is considered the highest hand in the game, trumping even a pure sabacc of 23. A win with any of those three special hands will give that player both the hand pot and the sabacc pot, and is typically seen as the end of gameplay for a single game.
+After the pot-building phase is over, any player may decide they wish to call the hand. One last round of betting occurs, starting with the Calling player, and then players reveal their cards. Any player with a hand totalling more than 23, less than -23, or exactly 0 at the time the hand is called has Bombed Out. The penalty for Bombing Out is to pay an amount equal to the contents of the Main Pot into the Sabacc Pot. The winning player takes the contents of the Main Pot. If that player won with a Pure Sabacc or an Idiot's Array, the Sabacc Pot is also collected.
 
-The game of sabacc used a deck of seventy-six cards featuring sixty numbered cards divided into four suits, and two copies of eight special cards. Each player is dealt two cards (sometimes five, depending on the set of rules in play at the table) which make up their hand. There are four phases within each hand: Betting, Calling, Shifting and Drawing.
+In the event that two or more players have equal winning hands, a Sudden Demise is enacted between those players. Each player in the Sudden Demise is dealt one extra card. Their hand totals are then re-summed to include their new card. Whichever player then has the best modified hand wins. If all players involved in the Sudden Demise bomb out they do not have to pay into the Sabacc pot, but none are then eligible to win the Main Pot. The Main Pot in that case goes to the player with the best hand who is not bombed out.
 
-Betting phase: Beginning with the player to the left of the dealer, the player has the option to place a bet.
-
-A typical game of sabacc is composed of several sequential rounds, and officially ends when a player wins with one of three special winning hands. At the beginning of each round, each player contributes an ante to the hand pot, which goes to the person with the winning hand at the conclusion of that hand. The winner in standard sabacc is the player who holds the hand with an absolute value closest to 23 (with both +23 and −23 being possible); this player wins the hand pot. Since −21 is closer to −23 than 20 is to 23, −21 would trump positive 20; however, in a situation where both −21 and 21 are in play at the same time, the positive 21 would triumph. Players with a hand above 23 or below −23 are considered to have Bombed Out, thus losing the hand, and in some cases, being forced to pay into the sabacc pot.
-
-The sabacc pot is another pot to which players must ante each hand. This special pot can be won only by winning a hand with one of the three trump scores: a pure sabacc of either +23 or −23 (with the former trumping the latter) or an Idiot's Array. The Array is a special hand containing a card called The Idiot, worth zero, a Two of any suit, and a Three of the same suit. When laid out on the table, an Idiot's Array is read, literally, as 023, and is considered the highest hand in the game, trumping even a pure sabacc of 23. A win with any of those three special hands will give that player both the hand pot and the sabacc pot, and is typically seen as the end of gameplay for a single game.
-
-Calling phase: A player has the option to call the hand during another player's calling phase but never his own.
-
-Shifting phase: The cards themselves are small, electronic devices with a display panel covering the surface of one side; this panel is capable of shifting the displayed suit and value of each card when told to do so by the computer running the game, or when a player has the option to manually shuffle the card's value. In this fashion, a player can receive new cards of any possible suit or rank without actually having to take new cards from the deck itself.
-
-Drawing phase: A player may also draw or discard individual cards from his hand. During the Drawing phase, a player may exchange a card in his hand for one in the deck. If the player decides to simply discard a card during this phase, that individual card is removed from play and is not subject to shifting.[2]
-
+At any time during game-play, up until the point where players reveal their cards, a Sabacc Shift may occur. This random event redistributes the values of the cards in play. It is the rare case when a Sabacc Shift occurs three or more times in a single hand, though once should be expected and twice is not abnormal. The only way to prevent a card from being affected by the Shift is to place it into the Interference Field (due to be implemented in a later version of Sabacc). A player may put a card into the field at any point during play. This Field prevents the Shift from affecting any card placed within it. The trade-off for placing a card in the Field is that it is placed face-up and the value can be seen by all other players.
+*  [Sabacc rules](http://sabacc.sourceforge.net/rules) on SourceForge for the background info.
 
 # Contributions
-
 Shout out to:
-* [gcedo](https://github.com/gcedo/) for the great work on [react-solitaire](https://github.com/gcedo/react-solitaire).
-* [Sabacc](http://sabacc.sourceforge.net/rules) on SourceForge for the background info on the rules and card images.
+* [Edoardo Colombo](https://github.com/gcedo/) for the great work on [react-solitaire](https://github.com/gcedo/react-solitaire).
+
 
 
 ## Quick Start

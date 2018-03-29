@@ -13,12 +13,19 @@ export function turnCard() {
     };
 }
 
+export function foldCards() {
+    return {
+        type: ActionTypes.FOLD_CARDS
+    };
+}
+
 export function shuffleDeck() {
     return { type: 'SHUFFLE_DECK' }
 }
 
 export default {
-    moveCard,
     turnCard,
-    shuffleDeck
+    shuffleDeck,
+    moveCard,
+    foldCards
 }
