@@ -1,15 +1,15 @@
 export const Colors = {
-    SPADES: '#212121',
-    HEARTS: '#FF5722',
-    DIAMONDS: '#FF5722',
-    CLUBS: '#212121',
+    SABERS: '#212121',
+    FLASKS: '#FF5722',
+    COINS: '#FF5722',
+    STAVES: '#212121',
 
     OK: 'green',
     KO: 'red',
 
     Card: {
         upturned: 'white',
-        downturned: '#1976D2',
+        downturned: '#fff',
         borderColorUp: '#B6B6B6',
         borderColorDown: '#1976D2'
     },
@@ -49,7 +49,9 @@ export const Dimensions = {
 const sidePadding = 10;
 
 export const CardsLayouts = {
-    A: [{ top: 62.5, left: 37.5 }],
+    1: [
+        { top: 20, left: 37.5 },
+    ],
     2: [
         { top: 20, left: 37.5 },
         { bottom: 20, left: 37.5, transform: 'rotate(180deg)' }
@@ -88,7 +90,27 @@ export const CardsLayouts = {
     get 10 () {
         return this[9].concat({ bottom: 40, right: 37.5,  transform: 'rotate(180deg)' })
     },
-    J: '♗',
-    Q: '♕',
-    K: '♔',
+    get 11 () {
+        return this[9].concat({ bottom: 40, right: 37.5,  transform: 'rotate(180deg)' })
+    },
+    get 12 () {
+        return this[9].concat({ bottom: 40, right: 37.5,  transform: 'rotate(180deg)' })
+    },
+    get 13 () {
+        return this[9].concat({ bottom: 40, right: 37.5,  transform: 'rotate(180deg)' })
+    },
+    get 14 () {
+        return this[9].concat({ bottom: 40, right: 37.5,  transform: 'rotate(180deg)' })
+    },
+    get 15 () {
+        return this[9].concat({ bottom: 40, right: 37.5,  transform: 'rotate(180deg)' })
+    },
+    S: 's',
+    E: 'e',
+    M: 'm',
+    D: 'd',
+    B: 'b',
+    N: 'n',
+    Q: 'q',
+    I: 'i'
 }

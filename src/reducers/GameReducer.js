@@ -13,10 +13,10 @@ export const OrderedDeck = flatten(
 function getInitialState(cards) {
     return Map({
         [Places.FOUNDATION]: Map({
-            HEARTS: List(),
-            SPADES: List(),
-            DIAMONDS: List(),
-            CLUBS: List()
+            SABERS: List(),
+            FLASKS: List(),
+            COINS: List(),
+            STAVES: List()
         }),
         [Places.PILE]: getPiles(cards),
         [Places.DECK]: Map({
@@ -87,6 +87,10 @@ function turnCard(state, action) {
     }
 
     return state.set(Places.DECK, deck);
+}
+
+function protectCard(state, action) {
+    
 }
 
 export default function game(

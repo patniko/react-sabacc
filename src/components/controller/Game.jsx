@@ -34,6 +34,12 @@ class Game extends React.Component {
                 backgroundColor: Colors.Game.backgroundColor,
                 padding: 10
             }}>
+                
+
+
+
+
+
                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
                     <SmartDeck deck={game.DECK} turnCard={turnCard} />
                     <div style={{
@@ -42,23 +48,23 @@ class Game extends React.Component {
                         justifyContent: 'space-between'
                     }}>
                         <SmartFoundation
-                            suit="HEARTS"
-                            cards={game.FOUNDATION.HEARTS}
+                            suit="SABERS"
+                            cards={game.FOUNDATION.SABERS}
                             moveCards={moveCards}
                         />
                         <SmartFoundation
-                            suit="DIAMONDS"
-                            cards={game.FOUNDATION.DIAMONDS}
+                            suit="FLASKS"
+                            cards={game.FOUNDATION.FLASKS}
                             moveCards={moveCards}
                         />
                         <SmartFoundation
-                            suit="CLUBS"
-                            cards={game.FOUNDATION.CLUBS}
+                            suit="COINS"
+                            cards={game.FOUNDATION.COINS}
                             moveCards={moveCards}
                         />
                         <SmartFoundation
-                            suit="SPADES"
-                            cards={game.FOUNDATION.SPADES}
+                            suit="STAVES"
+                            cards={game.FOUNDATION.STAVES}
                             moveCards={moveCards}
                         />
                     </div>

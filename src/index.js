@@ -49,23 +49,23 @@ ReactDOM.render(
 
 ReactDOM.render(
     <div>
-        { Ranks.map(rank => <Card rank={rank} suit="HEARTS" upturned key={rank} />) }
+        { Ranks.map(rank => <Card rank={rank} suit="STAVES" upturned key={rank} />) }
     </div>,
     document.getElementById('card')
 );
 
 ReactDOM.render(
     <Deck>
-        <Card rank="A" suit="HEARTS" upturned/>
+        <Card rank="A" suit="STAVES" upturned/>
     </Deck>,
     document.getElementById('deck')
 );
 
 ReactDOM.render(
     <Pile>
-        <Card rank="A" suit="HEARTS"/>
-        <Card rank="2" suit="HEARTS"/>
-        <Card rank="3" suit="HEARTS"/>
+        <Card rank="I" suit="STAVES"/>
+        <Card rank="2" suit="STAVES"/>
+        <Card rank="3" suit="STAVES"/>
     </Pile>,
     document.getElementById('pile')
 );
