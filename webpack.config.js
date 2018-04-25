@@ -23,7 +23,7 @@ module.exports = {
         loaders: ['babel-loader'],
         include: path.join(__dirname, 'src')
       },
-      {test: /\.(png|jpg)$/, loader: 'url-loader?limit=8192'}
+      { test: /\.(png|jpg)$/, loader: 'url-loader?limit=8192' }
     ]
   }
 };
