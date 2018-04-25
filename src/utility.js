@@ -149,7 +149,7 @@ export function clone(obj) {
 
 export function isBombedOut(player) {
     let handValue = getHandValue(player.cards);
-    return handValue > 23 || handValue < -23;
+    return handValue == 0 || handValue > 23 || handValue < -23;
 }
 
 export function getActivePlayerId(state) {
