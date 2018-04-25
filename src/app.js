@@ -13,20 +13,42 @@ export default class App extends Component {
 
     render() {
         let roundResult = this.state.gamePhase === gamePhases.roundResults || this.state.gamePhase === gamePhases.handResults ?
-            <div style={{ display: 'inline-block', padding: "5px" }}>
+            <div>
                 <span>{this.state.roundResultDescription}</span>
             </div> : null;
         return (
-            <div>
-                <div style={{ display: 'inline-block', padding: "10px" }}>Hand: {this.state.handNum}, round: {this.state.roundNum}, total credits: {this.getTotalCredits(this.state)}, phase: {phaseDescriptions[this.state.gamePhase]}</div>
-                {roundResult}
-                {(this.state.gamePhase === gamePhases.roundResults || this.state.gamePhase === gamePhases.roundOver) && <button onClick={this.startNextRound}>Start next round</button>}
-                {this.state.gamePhase === gamePhases.handResults && <button onClick={this.startNewHand}>Start next hand</button>}
-                <Player player={this.state.players[1]} onBet={this.bet} onDontBet={this.dontBet} onFold={this.fold} />
-                <Deck deck={this.state.deck} onDrawCard={this.drawCard} onStand={this.stand} />
-                <Pot name="Main pot" amount={this.state.mainPot} />
-                <Pot name="Sabacc pot" amount={this.state.sabaccPot} />
-                <Player player={this.state.players[0]} onBet={this.bet} onDontBet={this.dontBet} onFold={this.fold} />
+            <div className="container-fluid">
+                <div className="row">
+                    <div className="col">
+                        <div className="border border-dark rounded shadow p-3 mb-5 bg-white rounded">
+                            <div>Hand: {this.state.handNum}, round: {this.state.roundNum}, total credits: {this.getTotalCredits(this.state)}, phase: {phaseDescriptions[this.state.gamePhase]}</div>
+                            {roundResult}
+                            {(this.state.gamePhase === gamePhases.roundResults || this.state.gamePhase === gamePhases.roundOver) && <button className="btn btn-outline-dark" onClick={this.startNextRound}>Start next round</button>}
+                            {this.state.gamePhase === gamePhases.handResults && <button className="btn btn-outline-dark" onClick={this.startNewHand}>Start next hand</button>}
+                        </div>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Player player={this.state.players[1]} onBet={this.bet} onDontBet={this.dontBet} onFold={this.fold} />
+                    </div>
+                </div>
+                <div className="row align-items-center">
+                    <div className="col">
+                        <Deck deck={this.state.deck} onDrawCard={this.drawCard} onStand={this.stand} />
+                    </div>
+                    <div className="col">
+                        <Pot name="Main pot" amount={this.state.mainPot} />
+                    </div>
+                    <div className="col">
+                        <Pot name="Sabacc pot" amount={this.state.sabaccPot} />
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Player player={this.state.players[0]} onBet={this.bet} onDontBet={this.dontBet} onFold={this.fold} />
+                    </div>
+                </div>
             </div>
         );
     }
