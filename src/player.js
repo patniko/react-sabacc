@@ -1,18 +1,42 @@
 import React from 'react'
 import Card from './card'
-import { getHandValue, getActivePlayerId } from './utility'
+import { getHandValue, isBettingPhase, isMatchingBetPhase, getActivePlayerId } from './utility'
 
 export default function Player(props) {
+    let customBetInput = isBettingPhase(props.gamePhase) ?
+        <input className="form-control" onChange={props.onNextBetChange} type="text" pattern="[0-9]*" value={props.player.nextBet}></input> : null;
+
+    let betButton = isBettingPhase(props.gamePhase) || isMatchingBetPhase(props.gamePhase) ?
+        <button className="btn btn-outline-dark" onClick={props.onBet}>{isBettingPhase(props.gamePhase) ? "Bet" : "Match bet"}</button> : null;
+
+    let dontBetButton = isBettingPhase(props.gamePhase) ?
+        <button className="btn btn-outline-dark" onClick={props.onDontBet}>Don't bet</button> : null;
+
+    let foldButton = isMatchingBetPhase(props.gamePhase) ?
+        <button className="btn btn-outline-dark" onClick={props.onFold}>Fold</button> : null;
+
+    let betControls = getActivePlayerId(props.gamePhase) === props.player.id ?
+        <div className="form-inline">
+            {customBetInput}
+            {betButton}
+            {dontBetButton}
+            {foldButton}
+        </div> : null;
+
+    let className = "rounded p-3 mb-5 bg-white " + getShadow(props);
+
     return (
-        <div style={{ border: '1px solid black' }}>
+        <div className={className}>
             <p>{props.player.cards.length} cards in hand, total value: {getHandValue(props.player.cards)}</p>
             <p>Balance: {props.player.balance} credits, current bet: {props.player.bet} credits</p>
             {props.player.cards.map((card, index) => <Card key={index} card={card} />)}
-            <div>
-                <button onClick={props.onBet}>Bet</button>
-                <button onClick={props.onDontBet}>Don't bet</button>
-                <button onClick={props.onFold}>Fold</button>
-            </div>
+            {betControls}
         </div>
     );
+}
+
+function getShadow(props) {
+    return (isBettingPhase(props.gamePhase) || isMatchingBetPhase(props.gamePhase))
+        && getActivePlayerId(props.gamePhase) === props.player.id
+        ? "shadow-active" : "shadow-inactive"
 }
