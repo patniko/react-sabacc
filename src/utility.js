@@ -2,7 +2,7 @@ import cards from './cards'
 import constants from './constants'
 let _ = require('lodash');
 
-// if you add new value then update phaseDescriptions
+// if you add new value then update phaseDescriptions, getActivePlayerId
 var gamePhases = {
     firstPlayerDraw: 1,
     secondPlayerDraw: 2,
@@ -49,10 +49,7 @@ export function getInitialState() {
         roundNum: 1,
         handResultDescription: "",
         handCalled: false,
-        players: [
-            { id: 0, cards: [], balance: constants.initialPlayerBalance - constants.mainPotAnteAmount - constants.sabaccPotAnteAmount, bet: 0 },
-            { id: 1, cards: [], balance: constants.initialPlayerBalance - constants.mainPotAnteAmount - constants.sabaccPotAnteAmount, bet: 0 },
-        ],
+        players: [createPlayer(0), createPlayer(1)],
         deck: getNewDeck()
     };
 
@@ -78,16 +75,16 @@ export function getHandValue(cards) {
     return cards.reduce((acc, card) => acc + card.value, 0);
 }
 
-export function isDrawingPhase(state) {
-    return state.gamePhase === gamePhases.firstPlayerDraw || state.gamePhase === gamePhases.secondPlayerDraw;
+export function isDrawingPhase(gamePhase) {
+    return gamePhase === gamePhases.firstPlayerDraw || gamePhase === gamePhases.secondPlayerDraw;
 }
 
-export function isBettingPhase(state) {
-    return state.gamePhase === gamePhases.firstPlayerBetting || state.gamePhase === gamePhases.secondPlayerBetting;
+export function isBettingPhase(gamePhase) {
+    return gamePhase === gamePhases.firstPlayerBetting || gamePhase === gamePhases.secondPlayerBetting;
 }
 
-export function isMatchingBetPhase(state) {
-    return state.gamePhase === gamePhases.firstPlayerMatchingBet || state.gamePhase === gamePhases.secondPlayerMatchingBet;
+export function isMatchingBetPhase(gamePhase) {
+    return gamePhase === gamePhases.firstPlayerMatchingBet || gamePhase === gamePhases.secondPlayerMatchingBet;
 }
 
 export function drawCard(state, playerNum) {
@@ -151,6 +148,25 @@ export function isBombedOut(player) {
     return handValue == 0 || handValue > 23 || handValue < -23;
 }
 
+export function getActivePlayerId(gamePhase) {
+    switch (gamePhase) {
+        case gamePhases.firstPlayerDraw:
+        case gamePhases.firstPlayerBetting:
+        case gamePhases.firstPlayerMatchingBet:
+            return 0;
+        case gamePhases.secondPlayerDraw:
+        case gamePhases.secondPlayerBetting:
+        case gamePhases.secondPlayerMatchingBet:
+            return 1;
+        case gamePhases.roundOver:
+        case gamePhases.handResults:
+        case gamePhases.firstPlayerLostGame:
+        case gamePhases.secondPlayerLostGame:
+        default:
+            return -1;
+    }
+}
+
 function isPositivePureSabacc(handValue) {
     return handValue === 23;
 }
@@ -164,6 +180,10 @@ function isIdiotsArray(cards) {
         && cards.some(card => card.value === 0) // The Idiot
         && cards.some(card => card.value === 2) // any 2
         && cards.some(card => card.value === 3); // any 3
+}
+
+function createPlayer(id) {
+    return { id: id, cards: [], balance: constants.initialPlayerBalance - constants.mainPotAnteAmount - constants.sabaccPotAnteAmount, bet: 0, nextBet: constants.defaultBetAmount };
 }
 
 /** The maximum is exclusive and the minimum is inclusive */

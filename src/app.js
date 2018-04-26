@@ -39,12 +39,12 @@ export default class App extends Component {
                 </div>
                 <div className="row">
                     <div className="col">
-                        <Player player={this.state.players[1]} onBet={this.bet} onDontBet={this.dontBet} onFold={this.fold} />
+                        <Player player={this.state.players[1]} onBet={() => this.bet(1)} onDontBet={this.dontBet} onFold={this.fold} onNextBetChange={e => this.changeNextBet(e, 1)} gamePhase={this.state.gamePhase} />
                     </div>
                 </div>
                 <div className="row align-items-center">
                     <div className="col">
-                        <Deck deck={this.state.deck} onDrawCard={this.drawCard} onStand={this.stand} />
+                        <Deck deck={this.state.deck} onDrawCard={this.drawCard} onStand={this.stand} gamePhase={this.state.gamePhase} />
                     </div>
                     <div className="col">
                         <Pot name="Main pot" amount={this.state.mainPot} />
@@ -55,7 +55,7 @@ export default class App extends Component {
                 </div>
                 <div className="row">
                     <div className="col">
-                        <Player player={this.state.players[0]} onBet={this.bet} onDontBet={this.dontBet} onFold={this.fold} />
+                        <Player player={this.state.players[0]} onBet={() => this.bet(0)} onDontBet={this.dontBet} onFold={this.fold} onNextBetChange={e => this.changeNextBet(e, 0)} gamePhase={this.state.gamePhase} />
                     </div>
                 </div>
             </div>
@@ -71,23 +71,25 @@ export default class App extends Component {
         });
     };
 
-    bet = () => {
+    bet = (playerId) => {
         this.setNewState(newState => {
-            if (isBettingPhase(newState)) {
+            if (isBettingPhase(newState.gamePhase)) {
+                let bet = newState.players[playerId].nextBet;
+                if (bet <= 0 || bet > newState.players[playerId].balance) {
+                    return;
+                }
+
                 if (newState.gamePhase === gamePhases.firstPlayerBetting) {
-                    this.makeBet(newState, 0);
+                    this.makeBet(newState, playerId, bet);
                     newState.gamePhase = gamePhases.secondPlayerMatchingBet;
                 } else {
-                    this.makeBet(newState, 1);
+                    this.makeBet(newState, playerId, bet);
                     newState.gamePhase = gamePhases.firstPlayerMatchingBet;
                 }
-            } else if (isMatchingBetPhase(newState)) {
-                if (newState.gamePhase === gamePhases.firstPlayerMatchingBet) {
-                    this.makeBet(newState, 0);
-                    newState.gamePhase = gamePhases.secondPlayerBetting;
-                } else {
-                    this.makeBet(newState, 1);
-                    newState.gamePhase = gamePhases.firstPlayerBetting;
+            } else if (isMatchingBetPhase(newState.gamePhase)) {
+                if (newState.players[playerId].balance > 0) {
+                    this.matchBet(newState, playerId);
+                    newState.gamePhase = newState.gamePhase === gamePhases.firstPlayerMatchingBet ? gamePhases.secondPlayerBetting : gamePhases.firstPlayerBetting;
                 }
             } else return;
         });
@@ -95,7 +97,7 @@ export default class App extends Component {
 
     dontBet = () => {
         this.setNewState(newState => {
-            if (!isBettingPhase(newState))
+            if (!isBettingPhase(newState.gamePhase))
                 return;
 
             if (newState.gamePhase === gamePhases.firstPlayerBetting) {
@@ -110,9 +112,19 @@ export default class App extends Component {
         });
     };
 
+    changeNextBet = (event, playerId) => {
+        let value = event.target.value;
+        let valid = event.target.validity.valid;
+
+        this.setNewState(newState => {
+            if (valid)
+                newState.players[playerId].nextBet = value == '' ? 0 : parseInt(value, 10);
+        });
+    };
+
     fold = () => {
         this.setNewState(newState => {
-            if (!isMatchingBetPhase(newState))
+            if (!isMatchingBetPhase(newState.gamePhase))
                 return;
 
             if (newState.gamePhase === gamePhases.firstPlayerMatchingBet) {
@@ -130,7 +142,7 @@ export default class App extends Component {
 
     drawCard = () => {
         this.setNewState(newState => {
-            if (!isDrawingPhase(newState))
+            if (!isDrawingPhase(newState.gamePhase))
                 return;
 
             drawCard(newState, newState.gamePhase === gamePhases.firstPlayerDraw ? 0 : 1);
@@ -140,7 +152,7 @@ export default class App extends Component {
 
     stand = () => {
         this.setNewState(newState => {
-            if (!isDrawingPhase(newState))
+            if (!isDrawingPhase(newState.gamePhase))
                 return;
 
             this.handlePlayerDoneDrawing(newState);
@@ -211,7 +223,7 @@ export default class App extends Component {
             case handResult.draw:
             case handResult.bothPlayersLost:
                 for (let player of newState.players)
-                    player.balance += newState.mainPot / newState.players.length;
+                    player.balance += Math.floor(newState.mainPot / newState.players.length);
                 break;
         }
         newState.mainPot = 0;
@@ -224,7 +236,7 @@ export default class App extends Component {
                     break;
                 case handResult.draw:
                     for (let player of newState.players)
-                        player.balance += newState.sabaccPot / newState.players.length;
+                        player.balance += Math.floor(newState.sabaccPot / newState.players.length);
                     break;
             }
             newState.sabaccPot = 0;
@@ -241,10 +253,18 @@ export default class App extends Component {
         newState.players[0].bet = newState.players[1].bet = 0;
     }
 
-    makeBet(newState, playerNum) {
-        newState.players[playerNum].balance -= constants.betAmount;
-        newState.players[playerNum].bet += constants.betAmount;
-        newState.mainPot += constants.betAmount;
+    makeBet(newState, playerNum, bet) {
+        newState.players[playerNum].balance -= bet;
+        newState.players[playerNum].bet += bet;
+        newState.mainPot += bet;
+    }
+
+    matchBet(newState, playerId) {
+        let maxBet = newState.players.reduce((acc, player) => player.bet > acc ? player.bet : acc, 0); // get maximum bet
+        let toBet = maxBet - newState.players[playerId].bet; // amount of credits to match maximum bet
+        let balance = newState.players[playerId].balance;
+        let bet = toBet > balance ? balance : toBet;
+        this.makeBet(newState, playerId, bet);
     }
 
     anteToMainPot(newState, player) {
