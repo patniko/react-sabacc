@@ -87,6 +87,10 @@ export function isMatchingBetPhase(gamePhase) {
     return gamePhase === gamePhases.firstPlayerMatchingBet || gamePhase === gamePhases.secondPlayerMatchingBet;
 }
 
+export function isRoundOverPhase(gamePhase) {
+    return gamePhase === gamePhases.roundOver || gamePhase === gamePhases.handResults;
+}
+
 export function drawCard(state, playerNum) {
     if (state.deck.length == 0)
         return;

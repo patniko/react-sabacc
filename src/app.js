@@ -3,7 +3,7 @@ import Deck from './deck'
 import Pot from './pot'
 import Player from './player'
 import constants from './constants'
-import { getHandWinner, drawCard, clone, isDrawingPhase, getInitialState, gamePhases, phaseDescriptions, handResult, drawCardsForEachPlayer, getNewDeck, isBombedOut, isBettingPhase, isMatchingBetPhase } from './utility'
+import { getHandWinner, drawCard, clone, isDrawingPhase, getInitialState, gamePhases, phaseDescriptions, handResult, drawCardsForEachPlayer, getNewDeck, isBombedOut, isBettingPhase, isMatchingBetPhase, isRoundOverPhase } from './utility'
 
 export default class App extends Component {
     constructor(props) {
@@ -24,11 +24,13 @@ export default class App extends Component {
         let startNextHandButton = this.state.gamePhase === gamePhases.handResults ?
             <button className="btn btn-outline-dark" onClick={this.startNewHand}>Start next hand</button> : null;
 
+        let headerShadow = "rounded p-3 mb-5 bg-white " + (isRoundOverPhase(this.state.gamePhase) ? "shadow-active" : "shadow-inactive");
+
         return (
             <div className="container-fluid">
                 <div className="row">
                     <div className="col">
-                        <div className="border border-dark rounded shadow-lg p-3 mb-5 bg-white">
+                        <div className={headerShadow}>
                             <div>Hand: {this.state.handNum}, round: {this.state.roundNum}, total credits: {this.getTotalCredits(this.state)}, hand called: {this.state.handCalled ? "yes" : "no"}, phase: {phaseDescriptions[this.state.gamePhase]}</div>
                             {handResult}
                             {startNextRoundButton}

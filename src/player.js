@@ -23,12 +23,20 @@ export default function Player(props) {
             {foldButton}
         </div> : null;
 
+    let className = "rounded p-3 mb-5 bg-white " + getShadow(props);
+
     return (
-        <div className="border border-dark rounded shadow-lg p-3 mb-5 bg-white">
+        <div className={className}>
             <p>{props.player.cards.length} cards in hand, total value: {getHandValue(props.player.cards)}</p>
             <p>Balance: {props.player.balance} credits, current bet: {props.player.bet} credits</p>
             {props.player.cards.map((card, index) => <Card key={index} card={card} />)}
             {betControls}
         </div>
     );
+}
+
+function getShadow(props) {
+    return (isBettingPhase(props.gamePhase) || isMatchingBetPhase(props.gamePhase))
+        && getActivePlayerId(props.gamePhase) === props.player.id
+        ? "shadow-active" : "shadow-inactive"
 }
