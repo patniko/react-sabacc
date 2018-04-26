@@ -3,5 +3,6 @@ export default ({
     sabaccPotAnteAmount: 50,
     betAmount: 50,
     initialPlayerBalance: 1000,
-    playersCount: 2
+    playersCount: 2,
+    numberOfPotBuildingRounds: 4
 })

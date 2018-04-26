@@ -3,7 +3,7 @@ import Deck from './deck'
 import Pot from './pot'
 import Player from './player'
 import constants from './constants'
-import { getRoundWinner, drawCard, clone, isDrawingPhase, getInitialState, gamePhases, phaseDescriptions, roundResult, drawCardsForEachPlayer, getNewDeck, isBombedOut, isBettingPhase, isMatchingBetPhase } from './utility'
+import { getHandWinner, drawCard, clone, isDrawingPhase, getInitialState, gamePhases, phaseDescriptions, handResult, drawCardsForEachPlayer, getNewDeck, isBombedOut, isBettingPhase, isMatchingBetPhase } from './utility'
 
 export default class App extends Component {
     constructor(props) {
@@ -12,19 +12,28 @@ export default class App extends Component {
     }
 
     render() {
-        let roundResult = this.state.gamePhase === gamePhases.roundResults || this.state.gamePhase === gamePhases.handResults ?
-            <div>
-                <span>{this.state.roundResultDescription}</span>
-            </div> : null;
+        let handResult = this.state.gamePhase === gamePhases.handResults ?
+            <div><span>{this.state.handResultDescription}</span></div> : null;
+
+        let startNextRoundButton = this.state.gamePhase === gamePhases.roundOver ?
+            <button className="btn btn-outline-dark" onClick={this.startNextRound}>Start next round</button> : null;
+
+        let callHandButton = this.state.gamePhase === gamePhases.roundOver && this.state.roundNum >= constants.numberOfPotBuildingRounds ?
+            <button className="btn btn-outline-dark" onClick={this.callHand}>Call hand</button> : null;
+
+        let startNextHandButton = this.state.gamePhase === gamePhases.handResults ?
+            <button className="btn btn-outline-dark" onClick={this.startNewHand}>Start next hand</button> : null;
+
         return (
             <div className="container-fluid">
                 <div className="row">
                     <div className="col">
-                        <div className="border border-dark rounded shadow p-3 mb-5 bg-white rounded">
-                            <div>Hand: {this.state.handNum}, round: {this.state.roundNum}, total credits: {this.getTotalCredits(this.state)}, phase: {phaseDescriptions[this.state.gamePhase]}</div>
-                            {roundResult}
-                            {(this.state.gamePhase === gamePhases.roundResults || this.state.gamePhase === gamePhases.roundOver) && <button className="btn btn-outline-dark" onClick={this.startNextRound}>Start next round</button>}
-                            {this.state.gamePhase === gamePhases.handResults && <button className="btn btn-outline-dark" onClick={this.startNewHand}>Start next hand</button>}
+                        <div className="border border-dark rounded shadow-lg p-3 mb-5 bg-white">
+                            <div>Hand: {this.state.handNum}, round: {this.state.roundNum}, total credits: {this.getTotalCredits(this.state)}, hand called: {this.state.handCalled ? "yes" : "no"}, phase: {phaseDescriptions[this.state.gamePhase]}</div>
+                            {handResult}
+                            {startNextRoundButton}
+                            {callHandButton}
+                            {startNextHandButton}
                         </div>
                     </div>
                 </div>
@@ -92,7 +101,11 @@ export default class App extends Component {
             if (newState.gamePhase === gamePhases.firstPlayerBetting) {
                 newState.gamePhase = gamePhases.secondPlayerBetting;
             } else {
-                newState.gamePhase = gamePhases.firstPlayerDraw;
+                if (newState.handCalled) {
+                    this.handleEndRound(newState);
+                } else {
+                    newState.gamePhase = gamePhases.firstPlayerDraw;
+                }
             }
         });
     };
@@ -104,10 +117,10 @@ export default class App extends Component {
 
             if (newState.gamePhase === gamePhases.firstPlayerMatchingBet) {
                 newState.players[1].balance += newState.mainPot;
-                newState.roundResultDescription = "First player folded, second player won this hand";
+                newState.handResultDescription = "First player folded, second player won this hand";
             } else {
                 newState.players[0].balance += newState.mainPot;
-                newState.roundResultDescription = "Second player folded, first player won this hand";
+                newState.handResultDescription = "Second player folded, first player won this hand";
             }
 
             newState.mainPot = 0;
@@ -134,11 +147,16 @@ export default class App extends Component {
         });
     };
 
+    callHand = () => {
+        this.setNewState(newState => {
+            newState.handCalled = true;
+            this.handleStartNextRound(newState);
+        });
+    };
+
     startNextRound = () => {
         this.setNewState(newState => {
-            newState.gamePhase = gamePhases.firstPlayerBetting;
-            newState.roundNum++;
-            this.clearBets(newState);
+            this.handleStartNextRound(newState);
         });
     };
 
@@ -147,6 +165,7 @@ export default class App extends Component {
             newState.gamePhase = gamePhases.firstPlayerBetting;
             newState.handNum++;
             newState.roundNum = 1;
+            newState.handCalled = false;
 
             for (let player of newState.players) {
                 this.anteToMainPot(newState, player);
@@ -169,49 +188,53 @@ export default class App extends Component {
     }
 
     handleEndRound(newState) {
+        if (!newState.handCalled) {
+            newState.gamePhase = gamePhases.roundOver;
+            return;
+        }
+
+        let result = getHandWinner(newState);
+        newState.gamePhase = gamePhases.handResults;
+        newState.handResultDescription = result.description;
+
         for (let player of newState.players) {
             if (isBombedOut(player)) {
                 this.anteToSabaccPot(newState, player, newState.mainPot);
             }
         }
 
-        newState.gamePhase = gamePhases.roundOver;
-        let result = getRoundWinner(newState);
-
-        if (newState.roundNum === 4 || result.wonSabacc) {
-            switch (result.winner) {
-                case roundResult.firstPlayerWon:
-                case roundResult.secondPlayerWon:
-                    newState.players[result.winner].balance += newState.mainPot;
-                    break;
-                case roundResult.draw:
-                case roundResult.bothPlayersLost:
-                    for (let player of newState.players)
-                        player.balance += newState.mainPot / newState.players.length;
-                    break;
-            }
-
-            newState.mainPot = 0;
-            newState.gamePhase = gamePhases.handResults;
+        switch (result.winner) {
+            case handResult.firstPlayerWon:
+            case handResult.secondPlayerWon:
+                newState.players[result.winner].balance += newState.mainPot;
+                break;
+            case handResult.draw:
+            case handResult.bothPlayersLost:
+                for (let player of newState.players)
+                    player.balance += newState.mainPot / newState.players.length;
+                break;
         }
+        newState.mainPot = 0;
 
         if (result.wonSabacc) {
             switch (result.winner) {
-                case roundResult.firstPlayerWon:
-                case roundResult.secondPlayerWon:
+                case handResult.firstPlayerWon:
+                case handResult.secondPlayerWon:
                     newState.players[result.winner].balance += newState.sabaccPot;
                     break;
-                case roundResult.draw:
+                case handResult.draw:
                     for (let player of newState.players)
                         player.balance += newState.sabaccPot / newState.players.length;
                     break;
             }
-
             newState.sabaccPot = 0;
-            newState.gamePhase = gamePhases.handResults;
         }
+    }
 
-        newState.roundResultDescription = result.description;
+    handleStartNextRound(newState) {
+        newState.gamePhase = gamePhases.firstPlayerBetting;
+        newState.roundNum++;
+        this.clearBets(newState);
     }
 
     clearBets(newState) {

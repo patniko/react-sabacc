@@ -2,25 +2,24 @@ import cards from './cards'
 import constants from './constants'
 let _ = require('lodash');
 
-// if you add new value then update phaseDescriptions, getActivePlayerId
+// if you add new value then update phaseDescriptions
 var gamePhases = {
     firstPlayerDraw: 1,
     secondPlayerDraw: 2,
-    roundResults: 3,
+    roundOver: 3,
     handResults: 4,
     firstPlayerBetting: 5,
     secondPlayerBetting: 6,
     firstPlayerMatchingBet: 7,
     secondPlayerMatchingBet: 8,
     firstPlayerLostGame: 9,
-    secondPlayerLostGame: 10,
-    roundOver: 11,
+    secondPlayerLostGame: 10
 };
 
 var phaseDescriptions = {
     [gamePhases.firstPlayerDraw]: "first player draws cards",
     [gamePhases.secondPlayerDraw]: "second player draws cards",
-    [gamePhases.roundResults]: "round results",
+    [gamePhases.roundOver]: "round over",
     [gamePhases.handResults]: "hand results",
     [gamePhases.firstPlayerBetting]: "first player betting",
     [gamePhases.secondPlayerBetting]: "second palyer betting",
@@ -28,17 +27,16 @@ var phaseDescriptions = {
     [gamePhases.secondPlayerMatchingBet]: "second player decides to either match the bet or fold",
     [gamePhases.firstPlayerLostGame]: "first player have lost the game because he run out of credits",
     [gamePhases.secondPlayerLostGame]: "second player have lost the game because he run out of credits",
-    [gamePhases.roundOver]: "round over"
 };
 
-var roundResult = {
+var handResult = {
     bothPlayersLost: -1,
     firstPlayerWon: 0,
     secondPlayerWon: 1,
     draw: 2
 };
 
-exports.roundResult = roundResult;
+exports.handResult = handResult;
 exports.gamePhases = gamePhases;
 exports.phaseDescriptions = phaseDescriptions;
 
@@ -49,10 +47,11 @@ export function getInitialState() {
         sabaccPot: constants.sabaccPotAnteAmount * constants.playersCount,
         handNum: 1,
         roundNum: 1,
-        roundResultDescription: "",
+        handResultDescription: "",
+        handCalled: false,
         players: [
             { id: 0, cards: [], balance: constants.initialPlayerBalance - constants.mainPotAnteAmount - constants.sabaccPotAnteAmount, bet: 0 },
-            { id: 1, cards: [], balance: constants.initialPlayerBalance - constants.mainPotAnteAmount - constants.sabaccPotAnteAmount, bet: 0 }
+            { id: 1, cards: [], balance: constants.initialPlayerBalance - constants.mainPotAnteAmount - constants.sabaccPotAnteAmount, bet: 0 },
         ],
         deck: getNewDeck()
     };
@@ -109,37 +108,37 @@ export function drawCardsForEachPlayer(state) {
     }
 }
 
-export function getRoundWinner(state) {
+export function getHandWinner(state) {
     let firstPlayerHandValue = getHandValue(state.players[0].cards);
     let secondPlayerHandValue = getHandValue(state.players[1].cards);
 
     if (isIdiotsArray(state.players[0].cards))
-        if (isIdiotsArray(state.players[1].cards)) return { winner: roundResult.draw, description: "Draw, both players have 'Idiot's Array'", wonSabacc: true };
-        else return { winner: roundResult.firstPlayerWon, description: "First player have won because he have 'Idiot's Array'", wonSabacc: true };
+        if (isIdiotsArray(state.players[1].cards)) return { winner: handResult.draw, description: "Draw, both players have 'Idiot's Array'", wonSabacc: true };
+        else return { winner: handResult.firstPlayerWon, description: "First player have won because he have 'Idiot's Array'", wonSabacc: true };
     if (isIdiotsArray(state.players[1].cards))
-        return { winner: roundResult.secondPlayerWon, description: "Second player have won because he have 'Idiot's Array'", wonSabacc: true };
+        return { winner: handResult.secondPlayerWon, description: "Second player have won because he have 'Idiot's Array'", wonSabacc: true };
 
     if (isPositivePureSabacc(firstPlayerHandValue))
-        if (isPositivePureSabacc(secondPlayerHandValue)) return { winner: roundResult.draw, description: "Draw, both players have positive 'Pure Sabacc'", wonSabacc: true };
-        else return { winner: roundResult.firstPlayerWon, description: "First player have won because he have positive 'Pure Sabacc'", wonSabacc: true };
+        if (isPositivePureSabacc(secondPlayerHandValue)) return { winner: handResult.draw, description: "Draw, both players have positive 'Pure Sabacc'", wonSabacc: true };
+        else return { winner: handResult.firstPlayerWon, description: "First player have won because he have positive 'Pure Sabacc'", wonSabacc: true };
     if (isPositivePureSabacc(secondPlayerHandValue))
-        return { winner: roundResult.secondPlayerWon, description: "Second player have won because he have positive 'Pure Sabacc'", wonSabacc: true };
+        return { winner: handResult.secondPlayerWon, description: "Second player have won because he have positive 'Pure Sabacc'", wonSabacc: true };
 
     if (isNegativePureSabacc(firstPlayerHandValue))
-        if (isNegativePureSabacc(secondPlayerHandValue)) return { winner: roundResult.draw, description: "Draw, both players have negative 'Pure Sabacc'", wonSabacc: true };
-        else return { winner: roundResult.firstPlayerWon, description: "First player have won because he have negative 'Pure Sabacc'", wonSabacc: true };
+        if (isNegativePureSabacc(secondPlayerHandValue)) return { winner: handResult.draw, description: "Draw, both players have negative 'Pure Sabacc'", wonSabacc: true };
+        else return { winner: handResult.firstPlayerWon, description: "First player have won because he have negative 'Pure Sabacc'", wonSabacc: true };
     if (isNegativePureSabacc(secondPlayerHandValue))
-        return { winner: roundResult.secondPlayerWon, description: "Second player have won because he have negative 'Pure Sabacc'", wonSabacc: true };
+        return { winner: handResult.secondPlayerWon, description: "Second player have won because he have negative 'Pure Sabacc'", wonSabacc: true };
 
     if (isBombedOut(state.players[0]))
-        if (isBombedOut(state.players[1])) return { winner: roundResult.bothPlayersLost, description: "No winners, both players have Bombed Out" };
-        else return { winner: roundResult.secondPlayerWon, description: "Second player have won, first player have Bombed Out" }
+        if (isBombedOut(state.players[1])) return { winner: handResult.bothPlayersLost, description: "No winners, both players have Bombed Out" };
+        else return { winner: handResult.secondPlayerWon, description: "Second player have won, first player have Bombed Out" }
     if (isBombedOut(state.players[1]))
-        return { winner: roundResult.firstPlayerWon, description: "First player have won, second player have Bombed Out" };
+        return { winner: handResult.firstPlayerWon, description: "First player have won, second player have Bombed Out" };
 
-    if (firstPlayerHandValue === secondPlayerHandValue) return { winner: roundResult.draw, description: "Draw, both players have equal hand value" };
-    else if (firstPlayerHandValue > secondPlayerHandValue) return { winner: roundResult.firstPlayerWon, description: "First player have won because his hand value closer to 23" };
-    else return { winner: roundResult.secondPlayerWon, description: "Second player have won because his hand value closer to 23" };
+    if (firstPlayerHandValue === secondPlayerHandValue) return { winner: handResult.draw, description: "Draw, both players have equal hand value" };
+    else if (firstPlayerHandValue > secondPlayerHandValue) return { winner: handResult.firstPlayerWon, description: "First player have won because his hand value closer to 23" };
+    else return { winner: handResult.secondPlayerWon, description: "Second player have won because his hand value closer to 23" };
 }
 
 /** create deep object clone */
@@ -150,26 +149,6 @@ export function clone(obj) {
 export function isBombedOut(player) {
     let handValue = getHandValue(player.cards);
     return handValue == 0 || handValue > 23 || handValue < -23;
-}
-
-export function getActivePlayerId(state) {
-    switch (state.gamePhase) {
-        case gamePhases.firstPlayerDraw:
-        case gamePhases.firstPlayerBetting:
-        case gamePhases.firstPlayerMatchingBet:
-            return 0;
-        case gamePhases.secondPlayerDraw:
-        case gamePhases.secondPlayerBetting:
-        case gamePhases.secondPlayerMatchingBet:
-            return 1;
-        case gamePhases.roundResults:
-        case gamePhases.handResults:
-        case gamePhases.firstPlayerLostGame:
-        case gamePhases.secondPlayerLostGame:
-        case gamePhases.roundOver:
-        default:
-            return -1;
-    }
 }
 
 function isPositivePureSabacc(handValue) {
