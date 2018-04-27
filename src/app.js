@@ -5,7 +5,7 @@ import Player from './player'
 import AIOpponent from './aiOpponent'
 import constants from './constants'
 import aiConstants from './aiConstants'
-import { getHandWinner, drawCard, clone, isDrawingPhase, getInitialState, gamePhases, phaseDescriptions, handResult, drawCardsForEachPlayer, getNewDeck, isBombedOut, isBettingPhase, isMatchingBetPhase, isRoundOverPhase, getHandValue } from './utility'
+import { getHandWinner, drawCard, clone, isDrawingPhase, getInitialState, gamePhases, phaseDescriptions, handResult, drawCardsForEachPlayer, getNewDeck, isBombedOut, isBettingPhase, isMatchingBetPhase, isRoundOverPhase, getHandValue, shift } from './utility'
 
 export default class App extends Component {
     constructor(props) {
@@ -239,20 +239,20 @@ export default class App extends Component {
         this.makeShift(newState);
     }
 
-    makeShift = (state) => { 
-        if (shift(state)) { 
-            this.showShiftAlert(state); 
-        } 
-    } 
- 
-    showShiftAlert = (state) => { 
-        state.showShiftAlert = true; 
-        this.setState(state); 
-        setTimeout(() => { 
-            state.showShiftAlert = false; 
-            this.setState(state); 
-        }, constants.alertVisibilityTimeInMs); 
-    }; 
+    makeShift = (state) => {
+        if (shift(state)) {
+            this.showShiftAlert(state);
+        }
+    }
+
+    showShiftAlert = (state) => {
+        state.showShiftAlert = true;
+        this.setState(state);
+        setTimeout(() => {
+            state.showShiftAlert = false;
+            this.setState(state);
+        }, constants.alertVisibilityTimeInMs);
+    };
 
     clearBets(newState) {
         newState.players[0].bet = newState.players[1].bet = 0;
