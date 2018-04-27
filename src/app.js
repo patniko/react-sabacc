@@ -17,10 +17,7 @@ export default class App extends Component {
         let handResult = this.state.gamePhase === gamePhases.handResults ?
             <div><span>{this.state.handResultDescription}</span></div> : null;
 
-        let startNextRoundButton = this.state.gamePhase === gamePhases.roundOver ?
-            <button className="btn btn-outline-dark" onClick={this.startNextRound}>Start next round</button> : null;
-
-        let callHandButton = this.state.gamePhase === gamePhases.roundOver && this.state.roundNum >= constants.numberOfPotBuildingRounds ?
+        let callHandButton = this.canCallHand(this.state) ?
             <button className="btn btn-outline-dark" onClick={this.callHand}>Call hand</button> : null;
 
         let startNextHandButton = this.state.gamePhase === gamePhases.handResults ?
@@ -35,7 +32,6 @@ export default class App extends Component {
                         <div className={className}>
                             <div>Hand: {this.state.handNum}, round: {this.state.roundNum}, total credits: {this.getTotalCredits(this.state)}, hand called: {this.state.handCalled ? "yes" : "no"}, phase: {phaseDescriptions[this.state.gamePhase]}</div>
                             {handResult}
-                            {startNextRoundButton}
                             {callHandButton}
                             {startNextHandButton}
                         </div>
@@ -43,7 +39,7 @@ export default class App extends Component {
                 </div>
                 <div className="row">
                     <div className="col">
-                        <AIOpponent player={this.state.players[1]} />
+                        <AIOpponent player={this.state.players[1]} gamePhase={this.state.gamePhase} />
                     </div>
                 </div>
                 <div className="row">
@@ -166,13 +162,6 @@ export default class App extends Component {
     callHand = () => {
         this.setNewState(newState => {
             newState.handCalled = true;
-            this.handleStartNextRound(newState);
-        });
-    };
-
-    startNextRound = () => {
-        this.setNewState(newState => {
-            this.handleStartNextRound(newState);
         });
     };
 
@@ -205,7 +194,7 @@ export default class App extends Component {
 
     handleEndRound(newState) {
         if (!newState.handCalled) {
-            newState.gamePhase = gamePhases.roundOver;
+            this.handleStartNextRound(newState);
             return;
         }
 
@@ -306,5 +295,12 @@ export default class App extends Component {
             drawCard(newState, 1);
         }
         this.handleEndRound(newState);
+    }
+
+    canCallHand(state) {
+        return !state.handCalled
+            && state.roundNum > constants.numberOfPotBuildingRounds
+            && isBettingPhase(state.gamePhase)
+            && state.players.every(player => player.bet === 0);
     }
 }

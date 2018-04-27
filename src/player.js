@@ -27,7 +27,7 @@ export default function Player(props) {
 
     return (
         <div className={className}>
-            <p>Balance: {props.player.balance} credits, current bet: {props.player.bet} credits, {props.player.cards.length} cards in hand, total value: {getHandValue(props.player.cards)}</p>
+            <p>Balance: {props.player.balance} credits, current bet: {props.player.bet} credits, total value: {getHandValue(props.player.cards)}</p>
             {props.player.cards.map((card, index) => <Card key={index} card={card} />)}
             {betControls}
         </div>
