@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function Pot(props) {
     return (
-        <div style={{ display: 'inline-block', border: '1px solid black', padding: '10px' }}>
+        <div className="rounded p-1 shadow-inactive">
             <p>{props.name} amount: {props.amount} credits</p>
         </div>
     );
