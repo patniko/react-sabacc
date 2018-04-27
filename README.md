@@ -48,4 +48,8 @@ Shout out to:
 $ npm install
 $ npm start
 $ open http://localhost:3000
+<<<<<<< HEAD
 ```
+=======
+```
+>>>>>>> upstream/master
