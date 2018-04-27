@@ -17,9 +17,6 @@ export default class App extends Component {
         let handResult = this.state.gamePhase === gamePhases.handResults ?
             <div><span>{this.state.handResultDescription}</span></div> : null;
 
-        let callHandButton = this.canCallHand(this.state) ?
-            <button className="btn btn-outline-dark" onClick={this.callHand}>Call hand</button> : null;
-
         let startNextHandButton = this.state.gamePhase === gamePhases.handResults ?
             <button className="btn btn-outline-dark" onClick={this.startNewHand}>Start next hand</button> : null;
 
@@ -32,7 +29,6 @@ export default class App extends Component {
                         <div className={className}>
                             <div>Hand: {this.state.handNum}, round: {this.state.roundNum}, total credits: {this.getTotalCredits(this.state)}, hand called: {this.state.handCalled ? "yes" : "no"}, phase: {phaseDescriptions[this.state.gamePhase]}</div>
                             {handResult}
-                            {callHandButton}
                             {startNextHandButton}
                         </div>
                     </div>
@@ -55,7 +51,7 @@ export default class App extends Component {
                 </div>
                 <div className="row">
                     <div className="col">
-                        <Player player={this.state.players[0]} onBet={() => this.bet(0)} onDontBet={this.dontBet} onFold={this.fold} onNextBetChange={e => this.changeNextBet(e, 0)} gamePhase={this.state.gamePhase} />
+                        <Player player={this.state.players[0]} onBet={() => this.bet(0)} onDontBet={this.dontBet} onFold={this.fold} onNextBetChange={e => this.changeNextBet(e, 0)} gameState={this.state} onCallHand={this.callHand} />
                     </div>
                 </div>
             </div>
@@ -295,12 +291,5 @@ export default class App extends Component {
             drawCard(newState, 1);
         }
         this.handleEndRound(newState);
-    }
-
-    canCallHand(state) {
-        return !state.handCalled
-            && state.roundNum > constants.numberOfPotBuildingRounds
-            && isBettingPhase(state.gamePhase)
-            && state.players.every(player => player.bet === 0);
     }
 }

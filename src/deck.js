@@ -13,8 +13,8 @@ export default function Deck(props) {
         <div className={className}>
             <div>
                 <Card card={cards.cardback} onClick={props.onDrawCard} />
+                {standButton}
             </div>
-            {standButton}
         </div>
     );
 }

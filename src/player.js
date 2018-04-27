@@ -1,29 +1,36 @@
 import React from 'react'
 import Card from './card'
+import constants from './constants'
 import { getHandValue, isBettingPhase, isMatchingBetPhase, getActivePlayerId } from './utility'
 
 export default function Player(props) {
-    let customBetInput = isBettingPhase(props.gamePhase) ?
+    let gamePhase = props.gameState.gamePhase;
+
+    let customBetInput = isBettingPhase(gamePhase) ?
         <input className="form-control" onChange={props.onNextBetChange} type="text" pattern="[0-9]*" value={props.player.nextBet}></input> : null;
 
-    let betButton = isBettingPhase(props.gamePhase) || isMatchingBetPhase(props.gamePhase) ?
-        <button className="btn btn-outline-dark" onClick={props.onBet}>{isBettingPhase(props.gamePhase) ? "Bet" : "Match bet"}</button> : null;
+    let betButton = isBettingPhase(gamePhase) || isMatchingBetPhase(gamePhase) ?
+        <button className="btn btn-outline-dark" onClick={props.onBet}>{isBettingPhase(gamePhase) ? "Bet" : "Match bet"}</button> : null;
 
-    let dontBetButton = isBettingPhase(props.gamePhase) ?
+    let dontBetButton = isBettingPhase(gamePhase) ?
         <button className="btn btn-outline-dark" onClick={props.onDontBet}>Don't bet</button> : null;
 
-    let foldButton = isMatchingBetPhase(props.gamePhase) ?
+    let foldButton = isMatchingBetPhase(gamePhase) ?
         <button className="btn btn-outline-dark" onClick={props.onFold}>Fold</button> : null;
 
-    let betControls = getActivePlayerId(props.gamePhase) === props.player.id ?
+    let callHandButton = canCallHand(props.gameState) ?
+        <button className="btn btn-outline-dark" onClick={props.onCallHand}>Call hand</button> : null;
+
+    let betControls = getActivePlayerId(gamePhase) === props.player.id ?
         <div className="form-inline">
             {customBetInput}
             {betButton}
             {dontBetButton}
             {foldButton}
+            {callHandButton}
         </div> : null;
 
-    let className = "rounded mb-3 p-1 " + getShadow(props);
+    let className = "rounded mb-3 p-1 " + getShadow(props, gamePhase);
 
     return (
         <div className={className}>
@@ -34,8 +41,15 @@ export default function Player(props) {
     );
 }
 
-function getShadow(props) {
-    return (isBettingPhase(props.gamePhase) || isMatchingBetPhase(props.gamePhase))
-        && getActivePlayerId(props.gamePhase) === props.player.id
+function canCallHand(gameState) {
+    return !gameState.handCalled
+        && gameState.roundNum > constants.numberOfPotBuildingRounds
+        && isBettingPhase(gameState.gamePhase)
+        && gameState.players.every(player => player.bet === 0);
+}
+
+function getShadow(props, gamePhase) {
+    return (isBettingPhase(gamePhase) || isMatchingBetPhase(gamePhase))
+        && getActivePlayerId(gamePhase) === props.player.id
         ? "shadow-active" : "shadow-inactive"
 }
