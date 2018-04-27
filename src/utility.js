@@ -50,7 +50,9 @@ export function getInitialState() {
         handResultDescription: "",
         handCalled: false,
         players: [createPlayer(0), createPlayer(1)],
-        deck: getNewDeck()
+        deck: getNewDeck(),
+        shiftCount: 0,
+        showShiftAlert: false
     };
 
     drawCardsForEachPlayer(state);
@@ -107,6 +109,39 @@ export function drawCardsForEachPlayer(state) {
             drawCard(state, playerNum);
         }
     }
+}
+
+export function shift(state) {
+    const cardsInPlay = [];
+    if (shiftHappens(state.shiftCount)) {
+        state.shiftCount++;
+        for (let player of state.players) {
+            cardsInPlay.push(...player.cards);
+        }
+        shuffleCards(cardsInPlay);
+        for (let player of state.players) {
+            player.cards = cardsInPlay.splice(0, player.cards.length);
+        }
+        return true;
+    }
+    return false;
+}
+
+export function shuffleCards(cards) {
+    const shufflesCount = cards.length / 2;
+    for (let i = 0; i < shufflesCount; i++) {
+        const firstCardIndex = getRandomInt(0, cards.length);
+        const secondCardIndex = getRandomInt(0, cards.length);
+        if (firstCardIndex !== secondCardIndex) {
+            const temp = cards[firstCardIndex];
+            cards[firstCardIndex] = cards[secondCardIndex];
+            cards[secondCardIndex] = temp;
+        }
+    }
+}
+
+export function shiftHappens(shiftCount) {
+    return getRandomInt(0, constants.shiftProbability * (shiftCount + 1)) === 6;
 }
 
 export function getHandWinner(state) {

@@ -236,7 +236,23 @@ export default class App extends Component {
         newState.gamePhase = gamePhases.firstPlayerBetting;
         newState.roundNum++;
         this.clearBets(newState);
+        this.makeShift(newState);
     }
+
+    makeShift = (state) => { 
+        if (shift(state)) { 
+            this.showShiftAlert(state); 
+        } 
+    } 
+ 
+    showShiftAlert = (state) => { 
+        state.showShiftAlert = true; 
+        this.setState(state); 
+        setTimeout(() => { 
+            state.showShiftAlert = false; 
+            this.setState(state); 
+        }, constants.alertVisibilityTimeInMs); 
+    }; 
 
     clearBets(newState) {
         newState.players[0].bet = newState.players[1].bet = 0;
