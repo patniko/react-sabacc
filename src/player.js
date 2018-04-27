@@ -23,12 +23,11 @@ export default function Player(props) {
             {foldButton}
         </div> : null;
 
-    let className = "rounded p-3 mb-5 bg-white " + getShadow(props);
+    let className = "rounded mb-3 p-1 " + getShadow(props);
 
     return (
         <div className={className}>
-            <p>{props.player.cards.length} cards in hand, total value: {getHandValue(props.player.cards)}</p>
-            <p>Balance: {props.player.balance} credits, current bet: {props.player.bet} credits</p>
+            <p>Balance: {props.player.balance} credits, current bet: {props.player.bet} credits, {props.player.cards.length} cards in hand, total value: {getHandValue(props.player.cards)}</p>
             {props.player.cards.map((card, index) => <Card key={index} card={card} />)}
             {betControls}
         </div>

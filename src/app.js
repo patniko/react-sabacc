@@ -2,8 +2,10 @@ import React, { Component } from 'react';
 import Deck from './deck'
 import Pot from './pot'
 import Player from './player'
+import AIOpponent from './aiOpponent'
 import constants from './constants'
-import { getHandWinner, drawCard, clone, isDrawingPhase, getInitialState, gamePhases, phaseDescriptions, handResult, drawCardsForEachPlayer, getNewDeck, isBombedOut, isBettingPhase, isMatchingBetPhase, isRoundOverPhase } from './utility'
+import aiConstants from './aiConstants'
+import { getHandWinner, drawCard, clone, isDrawingPhase, getInitialState, gamePhases, phaseDescriptions, handResult, drawCardsForEachPlayer, getNewDeck, isBombedOut, isBettingPhase, isMatchingBetPhase, isRoundOverPhase, getHandValue } from './utility'
 
 export default class App extends Component {
     constructor(props) {
@@ -24,13 +26,13 @@ export default class App extends Component {
         let startNextHandButton = this.state.gamePhase === gamePhases.handResults ?
             <button className="btn btn-outline-dark" onClick={this.startNewHand}>Start next hand</button> : null;
 
-        let headerShadow = "rounded p-3 mb-5 bg-white " + (isRoundOverPhase(this.state.gamePhase) ? "shadow-active" : "shadow-inactive");
+        let className = "rounded mt-3 mb-3 p-1 " + (isRoundOverPhase(this.state.gamePhase) ? "shadow-active" : "shadow-inactive");
 
         return (
             <div className="container-fluid">
                 <div className="row">
                     <div className="col">
-                        <div className={headerShadow}>
+                        <div className={className}>
                             <div>Hand: {this.state.handNum}, round: {this.state.roundNum}, total credits: {this.getTotalCredits(this.state)}, hand called: {this.state.handCalled ? "yes" : "no"}, phase: {phaseDescriptions[this.state.gamePhase]}</div>
                             {handResult}
                             {startNextRoundButton}
@@ -41,10 +43,10 @@ export default class App extends Component {
                 </div>
                 <div className="row">
                     <div className="col">
-                        <Player player={this.state.players[1]} onBet={() => this.bet(1)} onDontBet={this.dontBet} onFold={this.fold} onNextBetChange={e => this.changeNextBet(e, 1)} gamePhase={this.state.gamePhase} />
+                        <AIOpponent player={this.state.players[1]} />
                     </div>
                 </div>
-                <div className="row align-items-center">
+                <div className="row">
                     <div className="col">
                         <Deck deck={this.state.deck} onDrawCard={this.drawCard} onStand={this.stand} gamePhase={this.state.gamePhase} />
                     </div>
@@ -83,7 +85,7 @@ export default class App extends Component {
 
                 if (newState.gamePhase === gamePhases.firstPlayerBetting) {
                     this.makeBet(newState, playerId, bet);
-                    newState.gamePhase = gamePhases.secondPlayerMatchingBet;
+                    this.aiMatchBet(newState);
                 } else {
                     this.makeBet(newState, playerId, bet);
                     newState.gamePhase = gamePhases.firstPlayerMatchingBet;
@@ -103,7 +105,7 @@ export default class App extends Component {
                 return;
 
             if (newState.gamePhase === gamePhases.firstPlayerBetting) {
-                newState.gamePhase = gamePhases.secondPlayerBetting;
+                this.aiMakeBet(newState);
             } else {
                 if (newState.handCalled) {
                     this.handleEndRound(newState);
@@ -195,7 +197,7 @@ export default class App extends Component {
 
     handlePlayerDoneDrawing(newState) {
         if (newState.gamePhase === gamePhases.firstPlayerDraw) {
-            newState.gamePhase = gamePhases.secondPlayerDraw;
+            this.aiDrawCard(newState);
         } else {
             this.handleEndRound(newState);
         }
@@ -281,5 +283,28 @@ export default class App extends Component {
 
     getTotalCredits(state) {
         return state.mainPot + state.sabaccPot + state.players.reduce((acc, player) => acc + player.balance, 0);
+    }
+
+    aiMakeBet(newState) {
+        // todo: make bet
+        if (newState.handCalled) {
+            this.handleEndRound(newState);
+        } else {
+            newState.gamePhase = gamePhases.firstPlayerDraw;
+        }
+    }
+
+    aiMatchBet(newState) {
+        // todo: fold when necessary
+        this.matchBet(newState, 1);
+        newState.gamePhase = gamePhases.firstPlayerBetting;
+    }
+
+    aiDrawCard(newState) {
+        let handValue = getHandValue(newState.players[1].cards);
+        if (handValue < aiConstants.drawNewCardHandValueThreshold) {
+            drawCard(newState, 1);
+        }
+        this.handleEndRound(newState);
     }
 }
