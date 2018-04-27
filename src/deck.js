@@ -10,7 +10,7 @@ export default function Deck(props) {
         <button className="btn btn-outline-dark" onClick={props.onStand}>Stand</button> : null;
 
     let shiftAlert = props.showAlert ? 
-        <span class='shift-alert'><strong>Shuffle!</strong></span> : null; 
+        <span class='shift-alert'><strong>Sabacc Shift!</strong></span> : null; 
 
     return (
         <div className={className}>
