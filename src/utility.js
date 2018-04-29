@@ -112,9 +112,9 @@ export function drawCardsForEachPlayer(state) {
 }
 
 export function shift(state) {
-    const cardsInPlay = [];
     if (shiftHappens(state.shiftCount)) {
         state.shiftCount++;
+        const cardsInPlay = [];
         for (let player of state.players) {
             cardsInPlay.push(...player.cards);
         }

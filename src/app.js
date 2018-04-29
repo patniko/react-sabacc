@@ -40,7 +40,7 @@ export default class App extends Component {
                 </div>
                 <div className="row">
                     <div className="col">
-                        <Deck deck={this.state.deck} onDrawCard={this.drawCard} onStand={this.stand} gamePhase={this.state.gamePhase} />
+                        <Deck deck={this.state.deck} onDrawCard={this.drawCard} onStand={this.stand} gamePhase={this.state.gamePhase} showShiftAlert={this.state.showShiftAlert} />
                     </div>
                     <div className="col">
                         <Pot name="Main pot" amount={this.state.mainPot} />
@@ -166,6 +166,7 @@ export default class App extends Component {
             newState.gamePhase = gamePhases.firstPlayerBetting;
             newState.handNum++;
             newState.roundNum = 1;
+            newState.shiftCount = 0;
             newState.handCalled = false;
 
             for (let player of newState.players) {
@@ -239,20 +240,21 @@ export default class App extends Component {
         this.makeShift(newState);
     }
 
-    makeShift = (state) => {
-        if (shift(state)) {
-            this.showShiftAlert(state);
+    makeShift(newState) {
+        if (shift(newState)) {
+            this.showShiftAlert(newState);
         }
     }
 
-    showShiftAlert = (state) => {
-        state.showShiftAlert = true;
-        this.setState(state);
+    showShiftAlert(newState) {
+        newState.showShiftAlert = true;
+
         setTimeout(() => {
-            state.showShiftAlert = false;
-            this.setState(state);
+            this.setNewState(newState => {
+                newState.showShiftAlert = false;
+            });
         }, constants.alertVisibilityTimeInMs);
-    };
+    }
 
     clearBets(newState) {
         newState.players[0].bet = newState.players[1].bet = 0;
