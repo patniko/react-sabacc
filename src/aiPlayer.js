@@ -3,7 +3,7 @@ import Card from './card'
 import cards from './cards'
 import { getHandValue, gamePhases } from './utility'
 
-export default function AIOpponent(props) {
+export default function AIPlayer(props) {
     let handValue = props.gamePhase === gamePhases.handResults ?
         <span>, total value: {getHandValue(props.player.cards)}</span> : null;
 

@@ -3,7 +3,7 @@ import Header from './header'
 import Deck from './deck'
 import Pot from './pot'
 import Player from './player'
-import AIOpponent from './aiOpponent'
+import AIPlayer from './aiPlayer'
 import constants from './constants'
 import aiConstants from './aiConstants'
 import { getHandWinner, drawCard, clone, isDrawingPhase, gamePhases, handResult, drawCardsForEachPlayer, getNewDeck, isBombedOut, isBettingPhase, isMatchingBetPhase, getHandValue, shift } from './utility'
@@ -24,7 +24,7 @@ export default class App extends Component {
                 </div>
                 <div className="row">
                     <div className="col">
-                        <AIOpponent player={this.state.players[1]} gamePhase={this.state.gamePhase} />
+                        <AIPlayer player={this.state.players[1]} gamePhase={this.state.gamePhase} />
                     </div>
                 </div>
                 <div className="row">
