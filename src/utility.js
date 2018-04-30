@@ -40,26 +40,6 @@ exports.handResult = handResult;
 exports.gamePhases = gamePhases;
 exports.phaseDescriptions = phaseDescriptions;
 
-export function getInitialState() {
-    let state = {
-        gamePhase: gamePhases.firstPlayerBetting,
-        mainPot: constants.mainPotAnteAmount * constants.playersCount,
-        sabaccPot: constants.sabaccPotAnteAmount * constants.playersCount,
-        handNum: 1,
-        roundNum: 1,
-        handResultDescription: "",
-        handCalled: false,
-        players: [createPlayer(0), createPlayer(1)],
-        deck: getNewDeck(),
-        shiftCount: 0,
-        showShiftAlert: false
-    };
-
-    drawCardsForEachPlayer(state);
-
-    return state;
-}
-
 export function getNewDeck() {
     return [
         cards.sabers1, cards.flasks1, cards.coins1, cards.staves1, cards.sabers2, cards.flasks2, cards.coins2, cards.staves2, cards.sabers3, cards.flasks3,
@@ -219,10 +199,6 @@ function isIdiotsArray(cards) {
         && cards.some(card => card.value === 0) // The Idiot
         && cards.some(card => card.value === 2) // any 2
         && cards.some(card => card.value === 3); // any 3
-}
-
-function createPlayer(id) {
-    return { id: id, cards: [], balance: constants.initialPlayerBalance - constants.mainPotAnteAmount - constants.sabaccPotAnteAmount, bet: 0, nextBet: constants.defaultBetAmount };
 }
 
 /** The maximum is exclusive and the minimum is inclusive */

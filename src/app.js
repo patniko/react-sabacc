@@ -5,12 +5,12 @@ import Player from './player'
 import AIOpponent from './aiOpponent'
 import constants from './constants'
 import aiConstants from './aiConstants'
-import { getHandWinner, drawCard, clone, isDrawingPhase, getInitialState, gamePhases, phaseDescriptions, handResult, drawCardsForEachPlayer, getNewDeck, isBombedOut, isBettingPhase, isMatchingBetPhase, isRoundOverPhase, getHandValue, shift } from './utility'
+import { getHandWinner, drawCard, clone, isDrawingPhase, gamePhases, phaseDescriptions, handResult, drawCardsForEachPlayer, getNewDeck, isBombedOut, isBettingPhase, isMatchingBetPhase, isRoundOverPhase, getHandValue, shift } from './utility'
 
 export default class App extends Component {
     constructor(props) {
         super(props);
-        this.state = getInitialState();
+        this.state = this.getInitialState();
     }
 
     render() {
@@ -180,6 +180,28 @@ export default class App extends Component {
             this.clearBets(newState);
         });
     };
+
+    getInitialState() {
+        let state = {
+            gamePhase: gamePhases.firstPlayerBetting,
+            mainPot: constants.mainPotAnteAmount * constants.playersCount,
+            sabaccPot: constants.sabaccPotAnteAmount * constants.playersCount,
+            handNum: 1,
+            roundNum: 1,
+            handResultDescription: "",
+            handCalled: false,
+            players: [this.createPlayer(0), this.createPlayer(1)],
+            deck: getNewDeck(),
+            shiftCount: 0,
+            showShiftAlert: false
+        };
+        drawCardsForEachPlayer(state);
+        return state;
+    }
+
+    createPlayer(id) {
+        return { id: id, cards: [], balance: constants.initialPlayerBalance - constants.mainPotAnteAmount - constants.sabaccPotAnteAmount, bet: 0, nextBet: constants.defaultBetAmount };
+    }
 
     handlePlayerDoneDrawing(newState) {
         if (newState.gamePhase === gamePhases.firstPlayerDraw) {
