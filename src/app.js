@@ -19,7 +19,7 @@ export default class App extends Component {
             <div className="container-fluid">
                 <div className="row">
                     <div className="col">
-                        <Header state={this.state} onStartNewHand={this.startNewHand} />
+                        <Header gameState={this.state} />
                     </div>
                 </div>
                 <div className="row">
@@ -40,7 +40,7 @@ export default class App extends Component {
                 </div>
                 <div className="row">
                     <div className="col">
-                        <Player player={this.state.players[0]} onBet={() => this.bet(0)} onDontBet={this.dontBet} onFold={this.fold} onNextBetChange={e => this.changeNextBet(e, 0)} gameState={this.state} onCallHand={this.callHand} />
+                        <Player player={this.state.players[0]} onBet={() => this.bet(0)} onDontBet={this.dontBet} onFold={this.fold} onNextBetChange={e => this.changeNextBet(e, 0)} gameState={this.state} onCallHand={this.callHand} onStartNewHand={this.startNewHand} />
                     </div>
                 </div>
             </div>

@@ -2,19 +2,15 @@ import React from 'react';
 import { gamePhases, isRoundOverPhase } from './utility'
 
 export default function Header(props) {
-    let handResult = props.state.gamePhase === gamePhases.handResults ?
-        <div><span>{props.state.handResultDescription}</span></div> : null;
+    let handResult = props.gameState.gamePhase === gamePhases.handResults ?
+        <div><span>{props.gameState.handResultDescription}</span></div> : null;
 
-    let startNextHandButton = props.state.gamePhase === gamePhases.handResults ?
-        <button className="btn btn-outline-dark" onClick={props.onStartNewHand}>Start next hand</button> : null;
-
-    let className = "rounded mt-3 mb-3 p-1 " + (isRoundOverPhase(props.state.gamePhase) ? "shadow-active" : "shadow-inactive");
+    let className = "rounded mt-3 mb-3 p-1 " + (isRoundOverPhase(props.gameState.gamePhase) ? "shadow-active" : "shadow-inactive");
 
     return (
         <div className={className}>
-            <div>Hand: {props.state.handNum}, round: {props.state.roundNum}, total credits: {getTotalCredits(props.state)}, hand called: {props.state.handCalled ? "yes" : "no"}, phase: {phaseDescriptions[props.state.gamePhase]}</div>
+            <div>Hand: {props.gameState.handNum}, round: {props.gameState.roundNum}, total credits: {getTotalCredits(props.gameState)}, hand called: {props.gameState.handCalled ? "yes" : "no"}, phase: {phaseDescriptions[props.gameState.gamePhase]}</div>
             {handResult}
-            {startNextHandButton}
         </div>
     );
 }
