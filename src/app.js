@@ -74,7 +74,7 @@ export default class App extends Component {
             } else if (isMatchingBetPhase(newState.gamePhase)) {
                 if (newState.players[playerId].balance > 0) {
                     this.matchBet(newState, playerId);
-                    newState.gamePhase = newState.gamePhase === gamePhases.firstPlayerMatchingBet ? gamePhases.secondPlayerBetting : gamePhases.firstPlayerBetting;
+                    this.aiMakeBet(newState);
                 }
             } else return;
         });
@@ -162,11 +162,12 @@ export default class App extends Component {
                 this.anteToMainPot(newState, player);
                 this.anteToSabaccPot(newState, player);
                 player.cards = [];
+                player.totalHandBet = 0;
             }
 
             newState.deck = getNewDeck();
             drawCardsForEachPlayer(newState);
-            this.clearBets(newState);
+            this.clearRoundBets(newState);
         });
     };
 
@@ -189,7 +190,7 @@ export default class App extends Component {
     }
 
     createPlayer(id) {
-        return { id: id, cards: [], balance: constants.initialPlayerBalance - constants.mainPotAnteAmount - constants.sabaccPotAnteAmount, bet: 0, nextBet: constants.defaultBetAmount };
+        return { id: id, cards: [], balance: constants.initialPlayerBalance - constants.mainPotAnteAmount - constants.sabaccPotAnteAmount, bet: 0, totalHandBet: 0, nextBet: constants.defaultBetAmount };
     }
 
     handlePlayerDoneDrawing(newState) {
@@ -247,7 +248,7 @@ export default class App extends Component {
     handleStartNextRound(newState) {
         newState.gamePhase = gamePhases.firstPlayerBetting;
         newState.roundNum++;
-        this.clearBets(newState);
+        this.clearRoundBets(newState);
         this.makeShift(newState);
     }
 
@@ -267,13 +268,14 @@ export default class App extends Component {
         }, constants.alertVisibilityTimeInMs);
     }
 
-    clearBets(newState) {
+    clearRoundBets(newState) {
         newState.players[0].bet = newState.players[1].bet = 0;
     }
 
     makeBet(newState, playerNum, bet) {
         newState.players[playerNum].balance -= bet;
         newState.players[playerNum].bet += bet;
+        newState.players[playerNum].totalHandBet += bet;
         newState.mainPot += bet;
     }
 
@@ -296,7 +298,21 @@ export default class App extends Component {
     }
 
     aiMakeBet(newState) {
-        // todo: make bet
+        let aiPlayer = newState.players[1];
+        let handValue = getHandValue(aiPlayer.cards);
+
+        if (handValue < 24 && aiPlayer.balance > 0) {
+            for (let betThreshold of aiConstants.betThresholds) {
+                if (handValue >= betThreshold.handValue && aiPlayer.totalHandBet < betThreshold.betAmount) {
+                    let toBet = betThreshold.betAmount - aiPlayer.totalHandBet;
+                    let bet = toBet > aiPlayer.balance ? aiPlayer.balance : toBet;
+                    this.makeBet(newState, 1, bet);
+                    newState.gamePhase = gamePhases.firstPlayerMatchingBet;
+                    return;
+                }
+            }
+        }
+
         if (newState.handCalled) {
             this.handleEndRound(newState);
         } else {
