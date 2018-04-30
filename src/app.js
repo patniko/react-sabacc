@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
+import Header from './header'
 import Deck from './deck'
 import Pot from './pot'
 import Player from './player'
 import AIOpponent from './aiOpponent'
 import constants from './constants'
 import aiConstants from './aiConstants'
-import { getHandWinner, drawCard, clone, isDrawingPhase, gamePhases, phaseDescriptions, handResult, drawCardsForEachPlayer, getNewDeck, isBombedOut, isBettingPhase, isMatchingBetPhase, isRoundOverPhase, getHandValue, shift } from './utility'
+import { getHandWinner, drawCard, clone, isDrawingPhase, gamePhases, handResult, drawCardsForEachPlayer, getNewDeck, isBombedOut, isBettingPhase, isMatchingBetPhase, getHandValue, shift } from './utility'
 
 export default class App extends Component {
     constructor(props) {
@@ -14,23 +15,11 @@ export default class App extends Component {
     }
 
     render() {
-        let handResult = this.state.gamePhase === gamePhases.handResults ?
-            <div><span>{this.state.handResultDescription}</span></div> : null;
-
-        let startNextHandButton = this.state.gamePhase === gamePhases.handResults ?
-            <button className="btn btn-outline-dark" onClick={this.startNewHand}>Start next hand</button> : null;
-
-        let className = "rounded mt-3 mb-3 p-1 " + (isRoundOverPhase(this.state.gamePhase) ? "shadow-active" : "shadow-inactive");
-
         return (
             <div className="container-fluid">
                 <div className="row">
                     <div className="col">
-                        <div className={className}>
-                            <div>Hand: {this.state.handNum}, round: {this.state.roundNum}, total credits: {this.getTotalCredits(this.state)}, hand called: {this.state.handCalled ? "yes" : "no"}, phase: {phaseDescriptions[this.state.gamePhase]}</div>
-                            {handResult}
-                            {startNextHandButton}
-                        </div>
+                        <Header state={this.state} onStartNewHand={this.startNewHand} />
                     </div>
                 </div>
                 <div className="row">
@@ -304,10 +293,6 @@ export default class App extends Component {
     anteToSabaccPot(newState, player, amount = constants.sabaccPotAnteAmount) {
         player.balance -= amount;
         newState.sabaccPot += amount;
-    }
-
-    getTotalCredits(state) {
-        return state.mainPot + state.sabaccPot + state.players.reduce((acc, player) => acc + player.balance, 0);
     }
 
     aiMakeBet(newState) {

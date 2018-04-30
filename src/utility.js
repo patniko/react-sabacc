@@ -16,19 +16,6 @@ var gamePhases = {
     secondPlayerLostGame: 10
 };
 
-var phaseDescriptions = {
-    [gamePhases.firstPlayerDraw]: "first player draws cards",
-    [gamePhases.secondPlayerDraw]: "second player draws cards",
-    [gamePhases.roundOver]: "round over",
-    [gamePhases.handResults]: "hand results",
-    [gamePhases.firstPlayerBetting]: "first player betting",
-    [gamePhases.secondPlayerBetting]: "second palyer betting",
-    [gamePhases.firstPlayerMatchingBet]: "first player decides to either match the bet or fold",
-    [gamePhases.secondPlayerMatchingBet]: "second player decides to either match the bet or fold",
-    [gamePhases.firstPlayerLostGame]: "first player have lost the game because he run out of credits",
-    [gamePhases.secondPlayerLostGame]: "second player have lost the game because he run out of credits",
-};
-
 var handResult = {
     bothPlayersLost: -1,
     firstPlayerWon: 0,
@@ -38,7 +25,6 @@ var handResult = {
 
 exports.handResult = handResult;
 exports.gamePhases = gamePhases;
-exports.phaseDescriptions = phaseDescriptions;
 
 export function getNewDeck() {
     return [
