@@ -1,30 +1,31 @@
-import React from 'react'
-import Card from './card'
-import constants from './constants'
-import { gamePhases, getHandValue, isBettingPhase, isMatchingBetPhase, getActivePlayerId } from './utility'
+import React from 'react';
+import Card from './card';
+import constants from './constants';
+import { getHandValue, isBettingPhase, isMatchingBetPhase, getActivePlayerId } from './utility';
+import { gamePhases } from './enums';
 
 export default function Player(props) {
-    let gamePhase = props.gameState.gamePhase;
+    const gamePhase = props.gameState.gamePhase;
 
-    let customBetInput = isBettingPhase(gamePhase) ?
+    const customBetInput = isBettingPhase(gamePhase) ?
         <input className="form-control" onChange={props.onNextBetChange} type="text" pattern="[0-9]*" value={props.player.nextBet}></input> : null;
 
-    let betButton = isBettingPhase(gamePhase) || isMatchingBetPhase(gamePhase) ?
+    const betButton = isBettingPhase(gamePhase) || isMatchingBetPhase(gamePhase) ?
         <button className="btn btn-outline-dark" onClick={props.onBet}>{isBettingPhase(gamePhase) ? "Bet" : "Match bet"}</button> : null;
 
-    let dontBetButton = isBettingPhase(gamePhase) ?
+    const dontBetButton = isBettingPhase(gamePhase) ?
         <button className="btn btn-outline-dark" onClick={props.onDontBet}>Don't bet</button> : null;
 
-    let foldButton = isMatchingBetPhase(gamePhase) ?
+    const foldButton = isMatchingBetPhase(gamePhase) ?
         <button className="btn btn-outline-dark" onClick={props.onFold}>Fold</button> : null;
 
-    let callHandButton = canCallHand(props.gameState) ?
+    const callHandButton = canCallHand(props.gameState) ?
         <button className="btn btn-outline-dark" onClick={props.onCallHand}>Call hand</button> : null;
 
-    let startNextHandButton = props.gameState.gamePhase === gamePhases.handResults ?
+    const startNextHandButton = props.gameState.gamePhase === gamePhases.handResults ?
         <button className="btn btn-outline-dark" onClick={props.onStartNewHand}>Start next hand</button> : null;
 
-    let className = "rounded mb-3 p-1 " + getShadow(props, gamePhase);
+    const className = "rounded mb-3 p-1 " + getShadow(props, gamePhase);
 
     return (
         <div className={className}>

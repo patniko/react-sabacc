@@ -1,30 +1,8 @@
-import cards from './cards'
-import constants from './constants'
-let _ = require('lodash');
+import cards from './cards';
+import constants from './constants';
+import { handResult, gamePhases } from './enums';
 
-// if you add new value then update phaseDescriptions, getActivePlayerId
-var gamePhases = {
-    firstPlayerDraw: 1,
-    secondPlayerDraw: 2,
-    roundOver: 3,
-    handResults: 4,
-    firstPlayerBetting: 5,
-    secondPlayerBetting: 6,
-    firstPlayerMatchingBet: 7,
-    secondPlayerMatchingBet: 8,
-    firstPlayerLostGame: 9,
-    secondPlayerLostGame: 10
-};
-
-var handResult = {
-    bothPlayersLost: -1,
-    firstPlayerWon: 0,
-    secondPlayerWon: 1,
-    draw: 2
-};
-
-exports.handResult = handResult;
-exports.gamePhases = gamePhases;
+const _ = require('lodash');
 
 export function getNewDeck() {
     return [
@@ -60,11 +38,12 @@ export function isRoundOverPhase(gamePhase) {
 }
 
 export function drawCard(state, playerNum) {
-    if (state.deck.length == 0)
+    if (state.deck.length == 0) {
         return;
+    }
 
-    let randCardIndex = getRandomInt(0, state.deck.length);
-    let card = state.deck[randCardIndex];
+    const randCardIndex = getRandomInt(0, state.deck.length);
+    const card = state.deck[randCardIndex];
     state.players[playerNum].cards.push(card);
     state.deck.splice(randCardIndex, 1); // remove card from deck
 }
@@ -111,36 +90,134 @@ export function shiftHappens(shiftCount) {
 }
 
 export function getHandWinner(state) {
-    let firstPlayerHandValue = getHandValue(state.players[0].cards);
-    let secondPlayerHandValue = getHandValue(state.players[1].cards);
+    const firstPlayerHandValue = getHandValue(state.players[0].cards);
+    const secondPlayerHandValue = getHandValue(state.players[1].cards);
+    const firstHasIdiotsArray = isIdiotsArray(state.players[0].cards);
+    const secondHasIdiotsArray = isIdiotsArray(state.players[1].cards);
+    const bothHaveIdiotsArray = secondHasIdiotsArray && firstHasIdiotsArray;
 
-    if (isIdiotsArray(state.players[0].cards))
-        if (isIdiotsArray(state.players[1].cards)) return { winner: handResult.draw, description: "Draw, both players have 'Idiot's Array'", wonSabacc: true };
-        else return { winner: handResult.firstPlayerWon, description: "First player have won because he have 'Idiot's Array'", wonSabacc: true };
-    if (isIdiotsArray(state.players[1].cards))
-        return { winner: handResult.secondPlayerWon, description: "Second player have won because he have 'Idiot's Array'", wonSabacc: true };
+    if (bothHaveIdiotsArray) {
+        return {
+            winner: handResult.draw,
+            description: strings.draw.idiotsArray,
+            wonSabacc: true
+        };
+    }
 
-    if (isPositivePureSabacc(firstPlayerHandValue))
-        if (isPositivePureSabacc(secondPlayerHandValue)) return { winner: handResult.draw, description: "Draw, both players have positive 'Pure Sabacc'", wonSabacc: true };
-        else return { winner: handResult.firstPlayerWon, description: "First player have won because he have positive 'Pure Sabacc'", wonSabacc: true };
-    if (isPositivePureSabacc(secondPlayerHandValue))
-        return { winner: handResult.secondPlayerWon, description: "Second player have won because he have positive 'Pure Sabacc'", wonSabacc: true };
+    if (firstHasIdiotsArray) {
+        return {
+            winner: handResult.firstPlayerWon,
+            description: strings.first.idiotsArray,
+            wonSabacc: true
+        };
+    }
 
-    if (isNegativePureSabacc(firstPlayerHandValue))
-        if (isNegativePureSabacc(secondPlayerHandValue)) return { winner: handResult.draw, description: "Draw, both players have negative 'Pure Sabacc'", wonSabacc: true };
-        else return { winner: handResult.firstPlayerWon, description: "First player have won because he have negative 'Pure Sabacc'", wonSabacc: true };
-    if (isNegativePureSabacc(secondPlayerHandValue))
-        return { winner: handResult.secondPlayerWon, description: "Second player have won because he have negative 'Pure Sabacc'", wonSabacc: true };
+    if (secondHasIdiotsArray) {
+        return {
+            winner: handResult.secondPlayerWon,
+            description: strings.second.idiotsArray,
+            wonSabacc: true
+        };
+    }
 
-    if (isBombedOut(state.players[0]))
-        if (isBombedOut(state.players[1])) return { winner: handResult.bothPlayersLost, description: "No winners, both players have Bombed Out" };
-        else return { winner: handResult.secondPlayerWon, description: "Second player have won, first player have Bombed Out" }
-    if (isBombedOut(state.players[1]))
-        return { winner: handResult.firstPlayerWon, description: "First player have won, second player have Bombed Out" };
+    const firstHasPositivePureSabacc = isPositivePureSabacc(firstPlayerHandValue);
+    const secondHasPositivePureSabacc = isPositivePureSabacc(secondPlayerHandValue);
+    const bothHavePositivePureSabacc = firstHasPositivePureSabacc && secondHasPositivePureSabacc;
 
-    if (firstPlayerHandValue === secondPlayerHandValue) return { winner: handResult.draw, description: "Draw, both players have equal hand value" };
-    else if (firstPlayerHandValue > secondPlayerHandValue) return { winner: handResult.firstPlayerWon, description: "First player have won because his hand value closer to 23" };
-    else return { winner: handResult.secondPlayerWon, description: "Second player have won because his hand value closer to 23" };
+    if (bothHavePositivePureSabacc) {
+        return {
+            winner: handResult.draw,
+            description: strings.draw.positivePureSabacc,
+            wonSabacc: true
+        };
+    }
+
+    if (firstHasPositivePureSabacc) {
+        return {
+            winner: handResult.firstPlayerWon,
+            description: strings.first.positivePureSabacc,
+            wonSabacc: true
+        };
+    }
+
+    if (secondHasPositivePureSabacc) {
+        return {
+            winner: handResult.secondPlayerWon,
+            description: strings.second.positivePureSabacc,
+            wonSabacc: true
+        };
+    }
+
+    const firstHasNegativePureSabacc = isNegativePureSabacc(firstPlayerHandValue);
+    const secondHasNegativePureSabacc = isNegativePureSabacc(secondPlayerHandValue);
+    const bothHaveNegativePureSabacc = firstHasNegativePureSabacc && secondHasNegativePureSabacc;
+
+    if (bothHaveNegativePureSabacc) {
+        return {
+            winner: handResult.draw,
+            description: strings.draw.negativePureSabacc,
+            wonSabacc: true
+        };
+    }
+
+    if (firstHasNegativePureSabacc) {
+        return {
+            winner: handResult.firstPlayerWon,
+            description: strings.first.negativePureSabacc,
+            wonSabacc: true
+        };
+    }
+
+    if (secondHasNegativePureSabacc) {
+        return {
+            winner: handResult.secondPlayerWon,
+            description: strings.second.negativePureSabacc,
+            wonSabacc: true
+        };
+    }
+
+    const firstBombedOut = isBombedOut(state.players[0]);
+    const secondBombedOut = isBombedOut(state.players[1]);
+    const bothBombedOut = firstBombedOut && secondBombedOut;
+
+    if (bothBombedOut) {
+        return {
+            winner: handResult.bothPlayersLost,
+            description: strings.draw.bombedOut
+                
+        };
+    }
+
+    if (firstBombedOut) {
+        return {
+            winner: handResult.secondPlayerWon,
+            description: strings.first.bombedOut
+        };
+    }
+
+    if (secondBombedOut) {
+        return {
+            winner: handResult.firstPlayerWon,
+            description: strings.second.bombedOut
+        };
+    }
+
+    if (firstPlayerHandValue === secondPlayerHandValue) {
+        return {
+            winner: handResult.draw,
+            description: strings.draw.value
+        };
+    } else if (firstPlayerHandValue > secondPlayerHandValue) {
+        return {
+            winner: handResult.firstPlayerWon,
+            description: strings.first.value
+        };
+    } else {
+        return {
+            winner: handResult.secondPlayerWon,
+            description: strings.second.value
+        };
+    }
 }
 
 /** create deep object clone */
@@ -149,7 +226,7 @@ export function clone(obj) {
 }
 
 export function isBombedOut(player) {
-    let handValue = getHandValue(player.cards);
+    const handValue = getHandValue(player.cards);
     return handValue == 0 || handValue > 23 || handValue < -23;
 }
 
