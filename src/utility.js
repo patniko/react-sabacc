@@ -16,19 +16,6 @@ var gamePhases = {
     secondPlayerLostGame: 10
 };
 
-var phaseDescriptions = {
-    [gamePhases.firstPlayerDraw]: "first player draws cards",
-    [gamePhases.secondPlayerDraw]: "second player draws cards",
-    [gamePhases.roundOver]: "round over",
-    [gamePhases.handResults]: "hand results",
-    [gamePhases.firstPlayerBetting]: "first player betting",
-    [gamePhases.secondPlayerBetting]: "second palyer betting",
-    [gamePhases.firstPlayerMatchingBet]: "first player decides to either match the bet or fold",
-    [gamePhases.secondPlayerMatchingBet]: "second player decides to either match the bet or fold",
-    [gamePhases.firstPlayerLostGame]: "first player have lost the game because he run out of credits",
-    [gamePhases.secondPlayerLostGame]: "second player have lost the game because he run out of credits",
-};
-
 var handResult = {
     bothPlayersLost: -1,
     firstPlayerWon: 0,
@@ -38,27 +25,6 @@ var handResult = {
 
 exports.handResult = handResult;
 exports.gamePhases = gamePhases;
-exports.phaseDescriptions = phaseDescriptions;
-
-export function getInitialState() {
-    let state = {
-        gamePhase: gamePhases.firstPlayerBetting,
-        mainPot: constants.mainPotAnteAmount * constants.playersCount,
-        sabaccPot: constants.sabaccPotAnteAmount * constants.playersCount,
-        handNum: 1,
-        roundNum: 1,
-        handResultDescription: "",
-        handCalled: false,
-        players: [createPlayer(0), createPlayer(1)],
-        deck: getNewDeck(),
-        shiftCount: 0,
-        showShiftAlert: false
-    };
-
-    drawCardsForEachPlayer(state);
-
-    return state;
-}
 
 export function getNewDeck() {
     return [
@@ -112,9 +78,9 @@ export function drawCardsForEachPlayer(state) {
 }
 
 export function shift(state) {
-    const cardsInPlay = [];
     if (shiftHappens(state.shiftCount)) {
         state.shiftCount++;
+        const cardsInPlay = [];
         for (let player of state.players) {
             cardsInPlay.push(...player.cards);
         }
@@ -219,10 +185,6 @@ function isIdiotsArray(cards) {
         && cards.some(card => card.value === 0) // The Idiot
         && cards.some(card => card.value === 2) // any 2
         && cards.some(card => card.value === 3); // any 3
-}
-
-function createPlayer(id) {
-    return { id: id, cards: [], balance: constants.initialPlayerBalance - constants.mainPotAnteAmount - constants.sabaccPotAnteAmount, bet: 0, nextBet: constants.defaultBetAmount };
 }
 
 /** The maximum is exclusive and the minimum is inclusive */

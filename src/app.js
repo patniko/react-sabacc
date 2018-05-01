@@ -1,46 +1,35 @@
 import React, { Component } from 'react';
+import Header from './header'
 import Deck from './deck'
 import Pot from './pot'
 import Player from './player'
-import AIOpponent from './aiOpponent'
+import AIPlayer from './aiPlayer'
 import constants from './constants'
 import aiConstants from './aiConstants'
-import { getHandWinner, drawCard, clone, isDrawingPhase, getInitialState, gamePhases, phaseDescriptions, handResult, drawCardsForEachPlayer, getNewDeck, isBombedOut, isBettingPhase, isMatchingBetPhase, isRoundOverPhase, getHandValue, shift } from './utility'
+import { getHandWinner, drawCard, clone, isDrawingPhase, gamePhases, handResult, drawCardsForEachPlayer, getNewDeck, isBombedOut, isBettingPhase, isMatchingBetPhase, getHandValue, shift } from './utility'
 
 export default class App extends Component {
     constructor(props) {
         super(props);
-        this.state = getInitialState();
+        this.state = this.getInitialState();
     }
 
     render() {
-        let handResult = this.state.gamePhase === gamePhases.handResults ?
-            <div><span>{this.state.handResultDescription}</span></div> : null;
-
-        let startNextHandButton = this.state.gamePhase === gamePhases.handResults ?
-            <button className="btn btn-outline-dark" onClick={this.startNewHand}>Start next hand</button> : null;
-
-        let className = "rounded mt-3 mb-3 p-1 " + (isRoundOverPhase(this.state.gamePhase) ? "shadow-active" : "shadow-inactive");
-
         return (
             <div className="container-fluid">
                 <div className="row">
                     <div className="col">
-                        <div className={className}>
-                            <div>Hand: {this.state.handNum}, round: {this.state.roundNum}, total credits: {this.getTotalCredits(this.state)}, hand called: {this.state.handCalled ? "yes" : "no"}, phase: {phaseDescriptions[this.state.gamePhase]}</div>
-                            {handResult}
-                            {startNextHandButton}
-                        </div>
+                        <Header gameState={this.state} />
                     </div>
                 </div>
                 <div className="row">
                     <div className="col">
-                        <AIOpponent player={this.state.players[1]} gamePhase={this.state.gamePhase} />
+                        <AIPlayer player={this.state.players[1]} gamePhase={this.state.gamePhase} />
                     </div>
                 </div>
                 <div className="row">
                     <div className="col">
-                        <Deck deck={this.state.deck} onDrawCard={this.drawCard} onStand={this.stand} gamePhase={this.state.gamePhase} />
+                        <Deck deck={this.state.deck} onDrawCard={this.drawCard} onStand={this.stand} gamePhase={this.state.gamePhase} showShiftAlert={this.state.showShiftAlert} />
                     </div>
                     <div className="col">
                         <Pot name="Main pot" amount={this.state.mainPot} />
@@ -51,7 +40,7 @@ export default class App extends Component {
                 </div>
                 <div className="row">
                     <div className="col">
-                        <Player player={this.state.players[0]} onBet={() => this.bet(0)} onDontBet={this.dontBet} onFold={this.fold} onNextBetChange={e => this.changeNextBet(e, 0)} gameState={this.state} onCallHand={this.callHand} />
+                        <Player player={this.state.players[0]} onBet={() => this.bet(0)} onDontBet={this.dontBet} onFold={this.fold} onNextBetChange={e => this.changeNextBet(e, 0)} gameState={this.state} onCallHand={this.callHand} onStartNewHand={this.startNewHand} />
                     </div>
                 </div>
             </div>
@@ -85,7 +74,7 @@ export default class App extends Component {
             } else if (isMatchingBetPhase(newState.gamePhase)) {
                 if (newState.players[playerId].balance > 0) {
                     this.matchBet(newState, playerId);
-                    newState.gamePhase = newState.gamePhase === gamePhases.firstPlayerMatchingBet ? gamePhases.secondPlayerBetting : gamePhases.firstPlayerBetting;
+                    this.aiMakeBet(newState);
                 }
             } else return;
         });
@@ -166,19 +155,43 @@ export default class App extends Component {
             newState.gamePhase = gamePhases.firstPlayerBetting;
             newState.handNum++;
             newState.roundNum = 1;
+            newState.shiftCount = 0;
             newState.handCalled = false;
 
             for (let player of newState.players) {
                 this.anteToMainPot(newState, player);
                 this.anteToSabaccPot(newState, player);
                 player.cards = [];
+                player.totalHandBet = 0;
             }
 
             newState.deck = getNewDeck();
             drawCardsForEachPlayer(newState);
-            this.clearBets(newState);
+            this.clearRoundBets(newState);
         });
     };
+
+    getInitialState() {
+        let state = {
+            gamePhase: gamePhases.firstPlayerBetting,
+            mainPot: constants.mainPotAnteAmount * constants.playersCount,
+            sabaccPot: constants.sabaccPotAnteAmount * constants.playersCount,
+            handNum: 1,
+            roundNum: 1,
+            handResultDescription: "",
+            handCalled: false,
+            players: [this.createPlayer(0), this.createPlayer(1)],
+            deck: getNewDeck(),
+            shiftCount: 0,
+            showShiftAlert: false
+        };
+        drawCardsForEachPlayer(state);
+        return state;
+    }
+
+    createPlayer(id) {
+        return { id: id, cards: [], balance: constants.initialPlayerBalance - constants.mainPotAnteAmount - constants.sabaccPotAnteAmount, bet: 0, totalHandBet: 0, nextBet: constants.defaultBetAmount };
+    }
 
     handlePlayerDoneDrawing(newState) {
         if (newState.gamePhase === gamePhases.firstPlayerDraw) {
@@ -235,32 +248,34 @@ export default class App extends Component {
     handleStartNextRound(newState) {
         newState.gamePhase = gamePhases.firstPlayerBetting;
         newState.roundNum++;
-        this.clearBets(newState);
+        this.clearRoundBets(newState);
         this.makeShift(newState);
     }
 
-    makeShift = (state) => {
-        if (shift(state)) {
-            this.showShiftAlert(state);
+    makeShift(newState) {
+        if (shift(newState)) {
+            this.showShiftAlert(newState);
         }
     }
 
-    showShiftAlert = (state) => {
-        state.showShiftAlert = true;
-        this.setState(state);
-        setTimeout(() => {
-            state.showShiftAlert = false;
-            this.setState(state);
-        }, constants.alertVisibilityTimeInMs);
-    };
+    showShiftAlert(newState) {
+        newState.showShiftAlert = true;
 
-    clearBets(newState) {
+        setTimeout(() => {
+            this.setNewState(newState => {
+                newState.showShiftAlert = false;
+            });
+        }, constants.alertVisibilityTimeInMs);
+    }
+
+    clearRoundBets(newState) {
         newState.players[0].bet = newState.players[1].bet = 0;
     }
 
     makeBet(newState, playerNum, bet) {
         newState.players[playerNum].balance -= bet;
         newState.players[playerNum].bet += bet;
+        newState.players[playerNum].totalHandBet += bet;
         newState.mainPot += bet;
     }
 
@@ -282,12 +297,22 @@ export default class App extends Component {
         newState.sabaccPot += amount;
     }
 
-    getTotalCredits(state) {
-        return state.mainPot + state.sabaccPot + state.players.reduce((acc, player) => acc + player.balance, 0);
-    }
-
     aiMakeBet(newState) {
-        // todo: make bet
+        let aiPlayer = newState.players[1];
+        let handValue = getHandValue(aiPlayer.cards);
+
+        if (handValue < 24 && aiPlayer.balance > 0) {
+            for (let betThreshold of aiConstants.betThresholds) {
+                if (handValue >= betThreshold.handValue && aiPlayer.totalHandBet < betThreshold.betAmount) {
+                    let toBet = betThreshold.betAmount - aiPlayer.totalHandBet;
+                    let bet = toBet > aiPlayer.balance ? aiPlayer.balance : toBet;
+                    this.makeBet(newState, 1, bet);
+                    newState.gamePhase = gamePhases.firstPlayerMatchingBet;
+                    return;
+                }
+            }
+        }
+
         if (newState.handCalled) {
             this.handleEndRound(newState);
         } else {

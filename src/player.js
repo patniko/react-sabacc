@@ -1,7 +1,7 @@
 import React from 'react'
 import Card from './card'
 import constants from './constants'
-import { getHandValue, isBettingPhase, isMatchingBetPhase, getActivePlayerId } from './utility'
+import { gamePhases, getHandValue, isBettingPhase, isMatchingBetPhase, getActivePlayerId } from './utility'
 
 export default function Player(props) {
     let gamePhase = props.gameState.gamePhase;
@@ -21,14 +21,8 @@ export default function Player(props) {
     let callHandButton = canCallHand(props.gameState) ?
         <button className="btn btn-outline-dark" onClick={props.onCallHand}>Call hand</button> : null;
 
-    let betControls = getActivePlayerId(gamePhase) === props.player.id ?
-        <div className="form-inline">
-            {customBetInput}
-            {betButton}
-            {dontBetButton}
-            {foldButton}
-            {callHandButton}
-        </div> : null;
+    let startNextHandButton = props.gameState.gamePhase === gamePhases.handResults ?
+        <button className="btn btn-outline-dark" onClick={props.onStartNewHand}>Start next hand</button> : null;
 
     let className = "rounded mb-3 p-1 " + getShadow(props, gamePhase);
 
@@ -36,7 +30,14 @@ export default function Player(props) {
         <div className={className}>
             <p>Balance: {props.player.balance} credits, current bet: {props.player.bet} credits, total value: {getHandValue(props.player.cards)}</p>
             {props.player.cards.map((card, index) => <Card key={index} card={card} />)}
-            {betControls}
+            <div className="form-inline">
+                {customBetInput}
+                {betButton}
+                {dontBetButton}
+                {foldButton}
+                {callHandButton}
+                {startNextHandButton}
+            </div>
         </div>
     );
 }

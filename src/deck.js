@@ -9,8 +9,8 @@ export default function Deck(props) {
     let standButton = isDrawingPhase(props.gamePhase) ?
         <button className="btn btn-outline-dark" onClick={props.onStand}>Stand</button> : null;
 
-    let shiftAlert = props.showAlert ? 
-        <span class='shift-alert'><strong>Sabacc Shift!</strong></span> : null; 
+    let shiftAlert = props.showShiftAlert ?
+        <span className='shift-alert'><strong>Sabacc Shift!</strong></span> : null;
 
     return (
         <div className={className}>
