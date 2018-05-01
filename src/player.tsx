@@ -1,10 +1,23 @@
-import React from 'react';
+import * as React from 'react';
 import Card from './card';
 import constants from './constants';
+import GameState from './gameState';
+import PlayerState from './playerState';
 import { getHandValue, isBettingPhase, isMatchingBetPhase, getActivePlayerId } from './utility';
-import { gamePhases } from './enums';
+import { GamePhases } from './enums';
 
-export default function Player(props) {
+export interface PlayerProps {
+    player: PlayerState;
+    gameState: GameState;
+    onBet: () => void;
+    onDontBet: () => void;
+    onCallHand: () => void;
+    onFold: () => void;
+    onStartNewHand: () => void;
+    onNextBetChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+export default function Player(props: PlayerProps) {
     const gamePhase = props.gameState.gamePhase;
 
     const customBetInput = isBettingPhase(gamePhase) ?
@@ -22,7 +35,7 @@ export default function Player(props) {
     const callHandButton = canCallHand(props.gameState) ?
         <button className="btn btn-outline-dark" onClick={props.onCallHand}>Call hand</button> : null;
 
-    const startNextHandButton = props.gameState.gamePhase === gamePhases.handResults ?
+    const startNextHandButton = props.gameState.gamePhase === GamePhases.HandResults ?
         <button className="btn btn-outline-dark" onClick={props.onStartNewHand}>Start next hand</button> : null;
 
     const className = "rounded mb-3 p-1 " + getShadow(props, gamePhase);
@@ -43,14 +56,14 @@ export default function Player(props) {
     );
 }
 
-function canCallHand(gameState) {
+function canCallHand(gameState: GameState) {
     return !gameState.handCalled
         && gameState.roundNum > constants.numberOfPotBuildingRounds
         && isBettingPhase(gameState.gamePhase)
         && gameState.players.every(player => player.bet === 0);
 }
 
-function getShadow(props, gamePhase) {
+function getShadow(props: PlayerProps, gamePhase: GamePhases) {
     return (isBettingPhase(gamePhase) || isMatchingBetPhase(gamePhase))
         && getActivePlayerId(gamePhase) === props.player.id
         ? "shadow-active" : "shadow-inactive"
