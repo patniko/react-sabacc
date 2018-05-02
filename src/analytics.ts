@@ -47,7 +47,6 @@ export class StartSessionLog {
     sid: string;
     timestamp: string = UTCNow().toJSON();
     device: DeviceInfo;
-    services: string[] = ["analytics"];
 }
 
 export class EventLog {
@@ -78,7 +77,7 @@ export class AppCenterClient {
     }
 
     public async startService() {
-        let serviceLog = new StartSessionLog();
+        let serviceLog = new StartServiceLog();
         serviceLog.device = this.device;
         this.queue.push(serviceLog);
 

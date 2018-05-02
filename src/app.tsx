@@ -12,6 +12,7 @@ import { HandResult, GamePhases } from './enums';
 import PlayerState from './playerState';
 import Strings from './strings';
 import { AppCenterClient, DeviceInfo } from "./analytics";
+import { v1 } from 'uuid';
 
 export interface AppProps { }
 
@@ -24,7 +25,7 @@ export default class App extends React.Component<AppProps, GameState> {
     }
 
     async componentDidMount() {
-        this._appCenterClient = new AppCenterClient('8b36a30a-96c9-4280-9941-b2f076f2827c', 'TestInstallId', this.getDeviceInfo());
+        this._appCenterClient = new AppCenterClient('8b36a30a-96c9-4280-9941-b2f076f2827c', v1(), this.getDeviceInfo());
         this._appCenterClient.startService();
         this._appCenterClient.startSession();
         await this._appCenterClient.flush();
