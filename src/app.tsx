@@ -11,13 +11,27 @@ import { getHandWinner, drawCard, clone, isDrawingPhase, drawCardsForEachPlayer,
 import { HandResult, GamePhases } from './enums';
 import PlayerState from './playerState';
 import Strings from './strings';
+import { AppCenterClient, DeviceInfo } from "./analytics";
 
 export interface AppProps { }
 
 export default class App extends React.Component<AppProps, GameState> {
+    private _appCenterClient: AppCenterClient;
+
     constructor(props: AppProps) {
         super(props);
         this.state = this.getInitialState();
+    }
+
+    async componentDidMount() {
+        this._appCenterClient = new AppCenterClient('8b36a30a-96c9-4280-9941-b2f076f2827c', 'TestInstallId', this.getDeviceInfo());
+        this._appCenterClient.startService();
+        this._appCenterClient.startSession();
+        await this._appCenterClient.flush();
+    }
+
+    componentWillUnmount() {
+        this._appCenterClient.stopService();
     }
 
     render() {
@@ -338,7 +352,6 @@ export default class App extends React.Component<AppProps, GameState> {
     }
 
     aiMatchBet(newState: GameState) {
-        // todo: fold when necessary
         this.matchBet(newState, 1);
         newState.gamePhase = GamePhases.FirstPlayerBetting;
     }
@@ -349,5 +362,26 @@ export default class App extends React.Component<AppProps, GameState> {
             drawCard(newState, 1);
         }
         this.handleEndRound(newState);
+    }
+
+    getDeviceInfo(): DeviceInfo {
+        const deviceInfo = new DeviceInfo();
+        deviceInfo.appNamespace = 'sabacc.game';
+        deviceInfo.appVersion = '1.0.0';
+        deviceInfo.appBuild = '1';
+        deviceInfo.carrierName = 'Web';
+        deviceInfo.carrierCountry = 'US';
+        deviceInfo.locale = 'en_US';
+        deviceInfo.osApiLevel = '1';
+        deviceInfo.sdkName = 'appcenter.node';
+        deviceInfo.sdkVersion = '0.0.1';
+        deviceInfo.model = 'PC';
+        deviceInfo.oemName = 'PC';
+        deviceInfo.osName = 'Windows';
+        deviceInfo.osVersion = '10.0.0';
+        deviceInfo.osBuild = '1';
+        deviceInfo.screenSize = '1920x1080';
+        deviceInfo.timeZoneOffset = -8;
+        return deviceInfo;
     }
 }
