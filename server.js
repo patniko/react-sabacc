@@ -1,6 +1,7 @@
 var path = require('path');
 var webpack = require('webpack');
 var express = require('express');
+var cors = require('cors');
 var config = require('./webpack.config');
 var bodyParser = require('body-parser');
 var request = require('request-promise');
@@ -9,6 +10,7 @@ var uuid = require('uuid');
 var compiler = webpack(config);
 var app = express();
 
+app.use(cors());
 app.use(bodyParser.json());
 
 app.use(require('webpack-dev-middleware')(compiler, {
