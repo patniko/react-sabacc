@@ -2,10 +2,11 @@ var path = require('path');
 var webpack = require('webpack');
 
 module.exports = {
-  devtool: 'eval',
+  mode: 'development',
+  devtool: 'source-map', // 'eval'
   entry: [
     'webpack-hot-middleware/client?reload=true',
-    './src/index'
+    './src/index.tsx' // './src/index'
   ],
   output: {
     path: path.join(__dirname, 'dist'),
@@ -16,13 +17,14 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin()
   ],
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js', '.json']
+  },
   module: {
-    loaders: [
-      {
-        test: /\.jsx?$/,
-        loaders: ['babel-loader'],
-        include: path.join(__dirname, 'src')
-      },
+    rules: [
+      { test: /\.tsx?$/, include: path.join(__dirname, 'src'), exclude: /node_modules/, loader: 'awesome-typescript-loader' },
+      { test: /\.jsx?$/, include: path.join(__dirname, 'src'), exclude: /node_modules/, loader: 'babel-loader' },
+      { enforce: 'pre', test: /\.js$/, loader: 'source-map-loader' },
       { test: /\.(png|jpg)$/, loader: 'url-loader?limit=8192' }
     ]
   }
