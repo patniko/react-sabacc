@@ -28,6 +28,8 @@
     "react-transform-catch-errors": "^1.0.0",
     "react-transform-hmr": "^1.0.0",
     "redbox-react": "^1.0.1",
+    "request": "^2.85.0",
+    "request-promise": "^4.2.2",
     "source-map-loader": "^0.2.3",
     "typescript": "^2.8.3",
     "uuid": "^3.2.1",

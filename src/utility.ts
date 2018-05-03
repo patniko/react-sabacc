@@ -40,7 +40,7 @@ export function isRoundOverPhase(gamePhase: GamePhases) {
     return gamePhase === GamePhases.RoundOver || gamePhase === GamePhases.HandResults;
 }
 
-export function drawCard(state: GameState, playerNum: number) {
+export function drawCard(state: GameState, playerNum: number): CardInfo {
     if (state.deck.length == 0) {
         return;
     }
@@ -49,6 +49,7 @@ export function drawCard(state: GameState, playerNum: number) {
     const card = state.deck[randCardIndex];
     state.players[playerNum].cards.push(card);
     state.deck.splice(randCardIndex, 1); // remove card from deck
+    return card;
 }
 
 export function drawCardsForEachPlayer(state: GameState) {
@@ -88,7 +89,7 @@ export function shuffleCards(cards: CardInfo[]) {
     }
 }
 
-export function shiftHappens(shiftCount: number) {
+export function shiftHappens(shiftCount: number): boolean {
     return getRandomInt(0, constants.shiftProbability * (shiftCount + 1)) === 6;
 }
 
@@ -250,6 +251,10 @@ export function getActivePlayerId(gamePhase: GamePhases) {
         default:
             return -1;
     }
+}
+
+export function getPlayerName(playerId: number) {
+    return playerId === 0 ? Strings.first.name : Strings.second.name;
 }
 
 function isPositivePureSabacc(handValue: number) {

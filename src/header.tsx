@@ -16,12 +16,8 @@ export default function Header(props: HeaderProps) {
 
     return (
         <div className={className}>
-            <div>Hand: {props.gameState.handNum}, round: {props.gameState.roundNum}, total credits: {getTotalCredits(props.gameState)}, hand called: {props.gameState.handCalled ? "yes" : "no"}, phase: {Strings.phaseDescriptions[props.gameState.gamePhase]}</div>
+            <div>Hand: {props.gameState.handNum}, round: {props.gameState.roundNum}, hand called: {props.gameState.handCalled ? "yes" : "no"}, phase: {Strings.phaseDescriptions[props.gameState.gamePhase]}</div>
             {handResult}
         </div>
     );
-}
-
-function getTotalCredits(state: GameState) {
-    return state.mainPot + state.sabaccPot + state.players.reduce((acc, player) => acc + player.balance, 0);
 }

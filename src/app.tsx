@@ -7,12 +7,13 @@ import AIPlayer from './aiPlayer';
 import constants from './constants';
 import aiConstants from './aiConstants';
 import GameState from './gameState';
-import { getHandWinner, drawCard, clone, isDrawingPhase, drawCardsForEachPlayer, getNewDeck, isBombedOut, isBettingPhase, isMatchingBetPhase, getHandValue, shift } from './utility';
+import { getHandWinner, drawCard, clone, isDrawingPhase, drawCardsForEachPlayer, getNewDeck, isBombedOut, isBettingPhase, isMatchingBetPhase, getHandValue, shift, getPlayerName } from './utility';
 import { HandResult, GamePhases } from './enums';
 import PlayerState from './playerState';
 import Strings from './strings';
 import { AppCenterClient, DeviceInfo } from "./analytics";
 import { v1 } from 'uuid';
+import AnalyticsFields from './analyticsFields';
 
 export interface AppProps { }
 
@@ -128,34 +129,39 @@ export default class App extends React.Component<AppProps, GameState> {
                 return;
             }
 
-            if (newState.gamePhase === GamePhases.FirstPlayerMatchingBet) {
-                newState.players[1].balance += newState.mainPot;
-                newState.handResultDescription = Strings.handResultSecond;
-            } else {
-                newState.players[0].balance += newState.mainPot;
-                newState.handResultDescription = Strings.handResultFirst;
-            }
-
-            newState.mainPot = 0;
-            newState.gamePhase = GamePhases.HandResults;
+            this.handleFold(newState, newState.players[1], newState.players[0], Strings.first.fold);
         });
     };
 
     drawCard = () => {
         this.setNewState(newState => {
-            if (!isDrawingPhase(newState.gamePhase))
+            if (!isDrawingPhase(newState.gamePhase)) {
                 return;
+            }
 
-            drawCard(newState, newState.gamePhase === GamePhases.FirstPlayerDraw ? 0 : 1);
+            const handValueBefore = getHandValue(newState.players[0].cards);
+            const card = drawCard(newState, 0);
+            this._appCenterClient.trackEvent(AnalyticsFields.draw, {
+                card_value: card.value,
+                card_total: handValueBefore,
+                round: newState.roundNum,
+                player: getPlayerName(0)
+            });
             this.handlePlayerDoneDrawing(newState);
         });
     };
 
     stand = () => {
         this.setNewState(newState => {
-            if (!isDrawingPhase(newState.gamePhase))
+            if (!isDrawingPhase(newState.gamePhase)) {
                 return;
+            }
 
+            this._appCenterClient.trackEvent(AnalyticsFields.stand, {
+                card_total: getHandValue(newState.players[0].cards),
+                round: newState.roundNum,
+                player: getPlayerName(0)
+            });
             this.handlePlayerDoneDrawing(newState);
         });
     };
@@ -163,6 +169,11 @@ export default class App extends React.Component<AppProps, GameState> {
     callHand = () => {
         this.setNewState(newState => {
             newState.handCalled = true;
+            this._appCenterClient.trackEvent(AnalyticsFields.call, {
+                card_total: getHandValue(newState.players[0].cards),
+                round: newState.roundNum,
+                player: getPlayerName(0)
+            });
         });
     };
 
@@ -184,6 +195,7 @@ export default class App extends React.Component<AppProps, GameState> {
             newState.deck = getNewDeck();
             drawCardsForEachPlayer(newState);
             this.clearRoundBets(newState);
+            this.trackRoundStart(newState);
         });
     };
 
@@ -235,11 +247,13 @@ export default class App extends React.Component<AppProps, GameState> {
 
     handleEndRound(newState: GameState) {
         if (!newState.handCalled) {
+            this.trackRoundOver(newState);
             this.handleStartNextRound(newState);
             return;
         }
 
         const result = getHandWinner(newState);
+        let winner: string = '';
         newState.gamePhase = GamePhases.HandResults;
         newState.handResultDescription = result.description;
 
@@ -252,10 +266,12 @@ export default class App extends React.Component<AppProps, GameState> {
         switch (result.winner) {
             case HandResult.FirstPlayerWon:
             case HandResult.SecondPlayerWon:
+                winner = getPlayerName(result.winner);
                 newState.players[result.winner].balance += newState.mainPot;
                 break;
             case HandResult.Draw:
             case HandResult.BothPlayersLost:
+                winner = Strings.draw.name;
                 for (let player of newState.players)
                     player.balance += Math.floor(newState.mainPot / newState.players.length);
                 break;
@@ -275,6 +291,11 @@ export default class App extends React.Component<AppProps, GameState> {
             }
             newState.sabaccPot = 0;
         }
+
+        this._appCenterClient.trackEvent(AnalyticsFields.handOver, {
+            round: newState.roundNum,
+            winner: winner
+        });
     }
 
     handleStartNextRound(newState: GameState) {
@@ -282,11 +303,28 @@ export default class App extends React.Component<AppProps, GameState> {
         newState.roundNum++;
         this.clearRoundBets(newState);
         this.makeShift(newState);
+        this.trackRoundStart(newState);
+    }
+
+    handleFold(newState: GameState, winner: PlayerState, loser: PlayerState, handResultDescription: string) {
+        winner.balance += newState.mainPot;
+        newState.mainPot = 0;
+        newState.gamePhase = GamePhases.HandResults;
+        newState.handResultDescription = handResultDescription;
+        this._appCenterClient.trackEvent(AnalyticsFields.fold, {
+            card_total: getHandValue(loser.cards),
+            round: newState.roundNum,
+            player: getPlayerName(loser.id)
+        });
     }
 
     makeShift(newState: GameState) {
         if (shift(newState)) {
             this.showShiftAlert(newState);
+            this._appCenterClient.trackEvent(AnalyticsFields.shift, {
+                round: newState.roundNum,
+                hand: newState.handNum
+            });
         }
     }
 
@@ -309,6 +347,11 @@ export default class App extends React.Component<AppProps, GameState> {
         newState.players[playerNum].bet += bet;
         newState.players[playerNum].totalHandBet += bet;
         newState.mainPot += bet;
+        this._appCenterClient.trackEvent(AnalyticsFields.raise, {
+            amount: bet,
+            round: newState.roundNum,
+            player: getPlayerName(playerNum)
+        })
     }
 
     matchBet(newState: GameState, playerId: number) {
@@ -360,7 +403,19 @@ export default class App extends React.Component<AppProps, GameState> {
     aiDrawCard(newState: GameState) {
         const handValue = getHandValue(newState.players[1].cards);
         if (handValue < aiConstants.drawNewCardHandValueThreshold) {
-            drawCard(newState, 1);
+            const card = drawCard(newState, 1);
+            this._appCenterClient.trackEvent(AnalyticsFields.draw, {
+                card_value: card.value,
+                card_total: handValue,
+                round: newState.roundNum,
+                player: getPlayerName(1)
+            });
+        } else {
+            this._appCenterClient.trackEvent(AnalyticsFields.stand, {
+                card_total: handValue,
+                round: newState.roundNum,
+                player: getPlayerName(1)
+            });
         }
         this.handleEndRound(newState);
     }
@@ -384,5 +439,21 @@ export default class App extends React.Component<AppProps, GameState> {
         deviceInfo.screenSize = '1920x1080';
         deviceInfo.timeZoneOffset = -8;
         return deviceInfo;
+    }
+
+    trackRoundStart(newState: GameState) {
+        this._appCenterClient.trackEvent(AnalyticsFields.roundStart, {
+            round: newState.roundNum,
+            hand: newState.handNum,
+            main_pot: newState.mainPot,
+            sabacc_pot: newState.sabaccPot
+        });
+    }
+
+    trackRoundOver(newState: GameState) {
+        this._appCenterClient.trackEvent(AnalyticsFields.roundOver, {
+            round: newState.roundNum,
+            hand: newState.handNum
+        });
     }
 }

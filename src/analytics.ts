@@ -1,4 +1,5 @@
 import { v1 } from 'uuid';
+import AnalyticsField from './analyticsField';
 
 function UTCNow(): Date {
     const date = new Date();
@@ -93,10 +94,10 @@ export class AppCenterClient {
         this.queue.push(eventLog);
     }
 
-    public trackEvent(name: string, fieldId: string, properties: any) {
+    public trackEvent(field: AnalyticsField, properties: any) {
         let eventLog = new EventLog();
-        eventLog.name = name;
-        eventLog.id = fieldId;
+        eventLog.name = field.name;
+        eventLog.id = field.id;
         eventLog.device = this.device;
         eventLog.sid = this.sessionId;
         eventLog.properties = properties;
@@ -126,21 +127,20 @@ export class AppCenterClient {
     }
 
     async sendRequest(body: string, logCount: number) {
-        const correlationId = v1();
-
         try {
-            console.log(body);
-            const response = await fetch(this.ingestionUrl, {
+            const data = {
+                appSecret: this.appSecret,
+                installId: this.installId,
+                logCount: logCount,
+                analyticsData: body
+            };
+            console.dir(data);
+            const response = await fetch('http://127.0.0.1:3000/analytics', {
                 method: 'POST',
-                mode: 'no-cors',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'App-Secret': this.appSecret,
-                    'Install-ID': this.installId,
-                    'LogCount': logCount.toString(),
-                    'X-Correlation-ID': correlationId
+                    'Content-Type': 'application/json'
                 },
-                body: body
+                body: JSON.stringify(data)
             });
             console.dir(response);
         } catch (exception) {
