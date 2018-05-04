@@ -1,7 +1,6 @@
 import * as  React from 'react';
-import Header from './header';
 import Deck from './deck';
-import Pot from './pot';
+import GameStatus from './gameStatus';
 import Player from './player';
 import AIPlayer from './aiPlayer';
 import constants from './constants';
@@ -14,6 +13,7 @@ import Strings from './strings';
 import { AppCenterClient, DeviceInfo } from "./analytics";
 import { v1 } from 'uuid';
 import AnalyticsFields from './analyticsFields';
+import PhaseDescription from './phaseDescription';
 
 export interface AppProps { }
 
@@ -41,28 +41,23 @@ export default class App extends React.Component<AppProps, GameState> {
             <div className="container-fluid">
                 <div className="row">
                     <div className="col">
-                        <Header gameState={this.state} />
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col">
                         <AIPlayer player={this.state.players[1]} gamePhase={this.state.gamePhase} />
                     </div>
                 </div>
                 <div className="row">
-                    <div className="col">
-                        <Deck onDrawCard={this.drawCard} onStand={this.stand} gamePhase={this.state.gamePhase} showShiftAlert={this.state.showShiftAlert} />
-                    </div>
-                    <div className="col">
-                        <Pot name="Main pot" amount={this.state.mainPot} />
-                    </div>
-                    <div className="col">
-                        <Pot name="Sabacc pot" amount={this.state.sabaccPot} />
+                    <div className="col flexCenter">
+                        <Deck onDrawCard={this.drawCard} gamePhase={this.state.gamePhase} />
+                        <GameStatus gameState={this.state} />
                     </div>
                 </div>
                 <div className="row">
                     <div className="col">
-                        <Player player={this.state.players[0]} onBet={() => this.bet(0)} onDontBet={this.dontBet} onFold={this.fold} onNextBetChange={e => this.changeNextBet(e, 0)} gameState={this.state} onCallHand={this.callHand} onStartNewHand={this.startNewHand} />
+                        <PhaseDescription gameState={this.state} />
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Player player={this.state.players[0]} onBet={() => this.bet(0)} onDontBet={this.dontBet} onFold={this.fold} onNextBetChange={e => this.changeNextBet(e, 0)} gameState={this.state} onCallHand={this.callHand} onStartNewHand={this.startNewHand} onDraw={this.drawCard} onStand={this.stand} />
                     </div>
                 </div>
             </div>
