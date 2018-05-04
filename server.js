@@ -22,7 +22,6 @@ app.use(require('webpack-hot-middleware')(compiler));
 app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
-app.use(express.static('res'));
 
 app.post('/analytics', function (req, res) {
     try {

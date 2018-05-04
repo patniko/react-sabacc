@@ -12,21 +12,9 @@
       font-family: 'Passion One', cursive;
     }
 
-    .rounded {
-      background: linear-gradient(to bottom, rgba(220, 220, 255, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(220, 220, 255, 1) 100%);
-    }
-
     button,
     input {
       margin-right: 5px;
-    }
-
-    .shadow-inactive {
-      box-shadow: 0px 0px 50px 0px rgba(0, 0, 0, 1);
-    }
-
-    .shadow-active {
-      box-shadow: 0px 0px 50px 0px rgba(0, 0, 255, 1);
     }
 
     .shift-alert {
@@ -36,16 +24,73 @@
     .sabaccCard {
       display: inline-block;
       position: relative;
-      background-color: rgba(0, 0, 0, 0);
+      width: 125px;
+      height: 175px;
+      border-radius: 3px;
+      border: 1px solid black;
+      cursor: default;
+      background-color: white;
+      margin-right: 10px;
     }
 
     .sabaccCard:hover {
       top: -5px;
     }
+
+    .cardback {
+      font-size: 120px;
+      font-family: 'Apple Symbols';
+      color: #00d8ff;
+    }
+
+    .cardImage {
+      font-size: 60px;
+    }
+
+    .center {
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .valueAndSuit {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+    }
+
+    .valueAndSuitRotated {
+      position: absolute;
+      bottom: 3px;
+      right: 3px;
+      transform: rotate(180deg)
+    }
+
+    .game {
+      background-color: rgb(124, 220, 124);
+    }
+
+    .flexCenter {
+      display: flex;
+      justify-content: center;
+    }
+
+    .textCenter {
+      text-align: center;
+    }
+
+    .inlineBlock {
+      display: inline-block;
+      border: 1px solid grey;
+      margin-right: 5px;
+      padding: 3px;
+    }
   </style>
 </head>
 
-<body>
+<body class="game">
   <div id="root"></div>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>

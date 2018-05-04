@@ -12,12 +12,18 @@ export interface AIPlayerProps {
 
 export default function AIPlayer(props: AIPlayerProps) {
     const handValue = props.gamePhase === GamePhases.HandResults ?
-        <span>, total value: {getHandValue(props.player.cards)}</span> : null;
+        <span className="inlineBlock">Total value: {getHandValue(props.player.cards)}</span> : null;
 
     return (
-        <div className="rounded mb-3 p-1 shadow-inactive">
-            <p>Balance: {props.player.balance} credits, current bet: {props.player.bet} credits{handValue}</p>
-            {props.player.cards.map((card, index) => <Card key={index} card={props.gamePhase === GamePhases.HandResults ? card : cards.cardback} />)}
+        <div className="mb-3 p-1 player">
+            <p className="textCenter">
+                <span className="inlineBlock">Balance: {props.player.balance} credits</span>
+                <span className="inlineBlock">Current bet: {props.player.bet} credits</span>
+                {handValue}
+            </p>
+            <div className="flexCenter">
+                {props.player.cards.map((card, index) => <Card key={index} upturned={props.gamePhase === GamePhases.HandResults} card={card} />)}
+            </div>
         </div>
     );
 }
