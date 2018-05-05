@@ -27,7 +27,7 @@ export default class App extends React.Component<AppProps, GameState> {
     }
 
     async componentDidMount() {
-        this._appCenterClient = new AppCenterClient('8b36a30a-96c9-4280-9941-b2f076f2827c', v1(), this.getDeviceInfo());
+        this._appCenterClient = new AppCenterClient('4ea7a46a-ad40-4430-9d89-0159d3b4316f', v1(), this.getDeviceInfo());
         this._appCenterClient.startService();
         this._appCenterClient.startSession();
         await this._appCenterClient.flush();
