@@ -15,7 +15,7 @@ export default function PhaseDescription(props: PhaseDescriptionProps) {
         <p>{props.gameState.handResultDescription}</p> : null;
 
     return (
-        <div className="textCenter">
+        <div className="textCenter phaseDescription">
             {description}
             {handResult}
         </div>
