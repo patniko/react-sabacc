@@ -14,6 +14,7 @@ import { AppCenterClient, DeviceInfo } from "./analytics";
 import { v1 } from 'uuid';
 import AnalyticsFields from './analyticsFields';
 import PhaseDescription from './phaseDescription';
+import AllCards from './allCards';
 
 export interface AppProps { }
 
@@ -60,6 +61,7 @@ export default class App extends React.Component<AppProps, GameState> {
                         <Player player={this.state.players[0]} onBet={() => this.bet(0)} onDontBet={this.dontBet} onFold={this.fold} onNextBetChange={e => this.changeNextBet(e, 0)} gameState={this.state} onCallHand={this.callHand} onStartNewHand={this.startNewHand} onDraw={this.drawCard} onStand={this.stand} />
                     </div>
                 </div>
+                {/*<AllCards />*/}
             </div>
         );
     }
