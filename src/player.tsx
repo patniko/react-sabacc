@@ -26,25 +26,25 @@ export default function Player(props: PlayerProps) {
         <input className="form-control" onChange={props.onNextBetChange} type="text" pattern="[0-9]*" value={props.player.nextBet}></input> : null;
 
     const betButton = isBettingPhase(gamePhase) || isMatchingBetPhase(gamePhase) ?
-        <button className="btn btn-outline-dark" onClick={props.onBet}>{isBettingPhase(gamePhase) ? "Bet" : "Match bet"}</button> : null;
+        <button className="btn btn-primary" onClick={props.onBet}>{isBettingPhase(gamePhase) ? "Bet" : "Match bet"}</button> : null;
 
     const dontBetButton = isBettingPhase(gamePhase) ?
-        <button className="btn btn-outline-dark" onClick={props.onDontBet}>Don't bet</button> : null;
+        <button className="btn btn-secondary" onClick={props.onDontBet}>Don't bet</button> : null;
 
     const foldButton = isMatchingBetPhase(gamePhase) ?
-        <button className="btn btn-outline-dark" onClick={props.onFold}>Fold</button> : null;
+        <button className="btn btn-danger" onClick={props.onFold}>Fold</button> : null;
 
     const callHandButton = canCallHand(props.gameState) ?
-        <button className="btn btn-outline-dark" onClick={props.onCallHand}>Call hand</button> : null;
+        <button className="btn btn-success" onClick={props.onCallHand}>Call hand</button> : null;
 
     const startNextHandButton = props.gameState.gamePhase === GamePhases.HandResults ?
-        <button className="btn btn-outline-dark" onClick={props.onStartNewHand}>Start next hand</button> : null;
+        <button className="btn btn-primary" onClick={props.onStartNewHand}>Start next hand</button> : null;
 
     const drawButton = isDrawingPhase(gamePhase) ?
-        <button className="btn btn-outline-dark" onClick={props.onDraw}>Draw</button> : null;
+        <button className="btn btn-primary" onClick={props.onDraw}>Draw</button> : null;
 
     const standButton = isDrawingPhase(gamePhase) ?
-        <button className="btn btn-outline-dark" onClick={props.onStand}>Stand</button> : null;
+        <button className="btn btn-secondary" onClick={props.onStand}>Stand</button> : null;
 
     return (
         <div className="mb-3 p-1 player">
