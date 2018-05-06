@@ -16,12 +16,12 @@ export default function AIPlayer(props: AIPlayerProps) {
 
     return (
         <div className="mb-3 p-1 player">
-            <p className="textCenter">
+            <p>
                 <span className="inlineBlock">Balance: {props.player.balance} credits</span>
                 <span className="inlineBlock">Current bet: {props.player.bet} credits</span>
                 {handValue}
             </p>
-            <div className="flexCenter">
+            <div className="flexLeft">
                 {props.player.cards.map((card, index) => <Card key={index} upturned={props.gamePhase === GamePhases.HandResults} card={card} />)}
             </div>
         </div>

@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>Sabacc</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
- 
+
 </head>
 
 <body class="game">
@@ -89,13 +89,27 @@
       background-color: rgb(124, 220, 124);
     }
 
+    .flexLeft {
+      display: flex;
+      justify-content: flex-start;
+    }
+
     .flexCenter {
       display: flex;
       justify-content: center;
     }
 
+    .flexRight {
+      display: flex;
+      justify-content: flex-end;
+    }
+
     .textCenter {
       text-align: center;
+    }
+
+    .textRight {
+      text-align: right;
     }
 
     .inlineBlock {
@@ -108,17 +122,18 @@
     }
 
     .pool {
-      margin-top:30px;
+      margin-top: 30px;
       width: 200px;
     }
+
     .poolHeader {
       margin-bottom: 0;
       font-size: 18px;
       width: 100%;
-
     }
+
     .poolValue {
-      font-size:30px;
+      font-size: 30px;
       width: 200px;
     }
   </style>
