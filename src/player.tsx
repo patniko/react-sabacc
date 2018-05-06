@@ -38,7 +38,7 @@ export default function Player(props: PlayerProps) {
         <button className="btn btn-success" onClick={props.onCallHand}>Call hand</button> : null;
 
     const startNextHandButton = props.gameState.gamePhase === GamePhases.HandResults ?
-        <button className="btn btn-primary" onClick={props.onStartNewHand}>Start next hand</button> : null;
+        <button className="btn btn-primary" onClick={props.onStartNewHand}>Next hand</button> : null;
 
     const drawButton = isDrawingPhase(gamePhase) ?
         <button className="btn btn-primary" onClick={props.onDraw}>Draw</button> : null;

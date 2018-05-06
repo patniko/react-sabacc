@@ -47,13 +47,19 @@ export default class App extends React.Component<AppProps, GameState> {
                 </div>
                 <div className="row">
                     <div className="col flexCenter">
+                        <GameStatus gameState={this.state} showCallHand={false} showMainPot={true} showSabaccPot={false} />
                         <Deck onDrawCard={this.drawCard} gamePhase={this.state.gamePhase} />
-                        <GameStatus gameState={this.state} />
+                        <GameStatus gameState={this.state} showCallHand={false} showMainPot={false} showSabaccPot={true} />
                     </div>
                 </div>
                 <div className="row">
                     <div className="col">
                         <PhaseDescription gameState={this.state} />
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col flexCenter">
+                        <GameStatus gameState={this.state} showCallHand={true} showMainPot={false} showSabaccPot={false} />
                     </div>
                 </div>
                 <div className="row">
