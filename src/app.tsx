@@ -297,8 +297,9 @@ export default class App extends React.Component<AppProps, GameState> {
     }
 
     handleStartNextRound(newState: GameState) {
-        newState.gamePhase = GamePhases.FirstPlayerBetting;
         newState.roundNum++;
+        this.aiCallHand(newState);
+        newState.gamePhase = GamePhases.FirstPlayerBetting;
         this.clearRoundBets(newState);
         this.makeShift(newState);
         this.trackRoundStart(newState);
@@ -416,6 +417,23 @@ export default class App extends React.Component<AppProps, GameState> {
             });
         }
         this.handleEndRound(newState);
+    }
+
+    aiCallHand(newState: GameState) {
+        let handValue = getHandValue(newState.players[1].cards);
+
+        if (!newState.handCalled
+            && newState.roundNum > constants.numberOfPotBuildingRounds
+            && handValue >= aiConstants.drawNewCardHandValueThreshold
+            && !isBombedOut(newState.players[1])) {
+            newState.handCalled = true;
+
+            this._appCenterClient.trackEvent(AnalyticsFields.call, {
+                card_total: handValue,
+                round: newState.roundNum,
+                player: getPlayerName(1)
+            });
+        }
     }
 
     getDeviceInfo(): DeviceInfo {
