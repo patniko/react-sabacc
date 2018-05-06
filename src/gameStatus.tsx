@@ -18,6 +18,7 @@ export default function GameStatus(props: GameStatusProps) {
                 <p>
                     <p className="poolHeader">Main pot: </p>
                     <p className="poolValue">{props.gameState.mainPot} credits</p>
+                    {shiftAlert}
                 </p>
             );
     const sabaccPot = !props.showSabaccPot ? null
@@ -31,7 +32,6 @@ export default function GameStatus(props: GameStatusProps) {
             : (
                 <p className="shift-alert">
                     <p>{props.gameState.handCalled ? "Hand Called" : ""}</p>
-                    {shiftAlert}
                 </p>
             );
                     

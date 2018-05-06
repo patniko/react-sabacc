@@ -12,12 +12,14 @@ export default function Card(props: CardProps) {
     return (
         <div className="sabaccCard" onClick={props.onClick} >
             {props.upturned ?
-                <div>
+                <div className="cardImageContainer">
                     <ValueAndSuit card={props.card} />
                     <ValueAndSuit card={props.card} rotated />
-                    <div className="cardImage center">{props.card.suit}</div>
+                    <div className="cardImage">{props.card.suit}</div>
                 </div> :
-                <div className="cardback center">⚛</div>
+                <div className="cardImageContainer">
+                    <div className="cardback">⚛</div>
+                </div>
             }
         </div>
     );
