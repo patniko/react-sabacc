@@ -48,15 +48,17 @@ export default function Player(props: PlayerProps) {
 
     return (
         <div className="mb-3 p-1 player">
-            <p className="textCenter">
-                <span className="inlineBlock">Balance: {props.player.balance} credits</span>
-                <span className="inlineBlock">Current bet: {props.player.bet} credits</span>
+            <p className="textRight">
                 <span className="inlineBlock">Total value: {getHandValue(props.player.cards)}</span>
             </p>
-            <div className="flexCenter">
+            <div className="mb-3 flexRight">
                 {props.player.cards.map((card, index) => <Card key={index} upturned={true} card={card} />)}
             </div>
-            <div className="mt-3 form-inline flexCenter">
+            <p className="textRight">
+                <span className="inlineBlock">Balance: {props.player.balance} credits</span>
+                <span className="inlineBlock">Current bet: {props.player.bet} credits</span>
+            </p>
+            <div className="mt-3 form-inline flexRight">
                 {customBetInput}
                 {betButton}
                 {dontBetButton}
